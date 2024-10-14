@@ -1,0 +1,347 @@
+import React, { useState } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
+import axios from "axios";
+import { DEPT_DATA } from "../../pages/Register/department-data";
+import classes from "./RequestTableDialogPortal.module.css";
+
+function formatDateTime(datetime) {
+  const date = new Date(datetime);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hour}:${minute}`;
+}
+
+const technicians = [
+  "Janitor",
+  "Electrician",
+  "Plumber",
+  "Carpentry",
+  "Masonry",
+  "Maintenance"
+];
+
+const RequestTableDialogPortal = ({ request = {}, mode, onDelete, onAddRequest, user_id }) => {
+  const isViewMode = mode === "view";
+  const isEditMode = mode === "edit";
+  const isDeleteMode = mode === "delete";
+  const isAddMode = mode === "add";
+
+  const [newRequest, setNewRequest] = useState({
+    request_id: request.request_id || "",
+    purpose: request.purpose || "",
+    datetime: request.datetime ? formatDateTime(request.datetime) : "",
+    status: request.status || "",
+    request_location: request.request_location || "",
+    department: request.department || "",
+    user_id: user_id || request.user_id ||  ,
+    user_firstname: request.user_firstname || "",
+   user_lastname: request.user_lastname || "",
+    technician: request.technician || "",
+    attachment: request.attachment || "",
+  });
+
+  const [file, setFile] = useState(null);
+
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setNewRequest((prevState) => ({
+      ...prevState,
+      [id]: value,
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    const { files } = e.target;
+    if (files.length > 0) {
+      setFile(files[0]);
+      setNewRequest((prevState) => ({
+        ...prevState,
+        attachment: files[0].name, // Update with file name for display
+      }));
+    }
+  };
+  
+
+  const handleAddRequest = () => {
+    if (!isAddMode) return;
+
+    if (onAddRequest) {
+      console.log('Request payload:', newRequest); // Debugging line
+      onAddRequest(newRequest);
+    }
+
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      axios.post('/upload', formData)
+        .then(response => {
+          console.log('File uploaded successfully');
+        })
+        .catch(error => {
+          console.error('File upload failed', error);
+        });
+    }
+  };
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(newRequest.request_id);
+    }
+  };
+
+  return (
+    <Dialog.Portal>
+      <Dialog.Overlay className={classes.DialogOverlay} />
+      <Dialog.Content className={classes.DialogContent}>
+        <Dialog.Title className={classes.DialogTitle}>
+          {isViewMode && "View Request Details"}
+          {isEditMode && "Edit Request Details"}
+          {isDeleteMode && "Delete Request"}
+          {isAddMode && "Add Request"}
+        </Dialog.Title>
+
+        {/* Request ID */}
+        {isAddMode ? null : (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="request_id">Request ID</label>
+            <input
+              className={classes.Input}
+              id="request_id"
+              value={newRequest.request_id}
+              readOnly
+            />
+          </fieldset>
+        )}
+
+        {/* Purpose */}
+        <fieldset className={classes.Fieldset}>
+          <label className={classes.Label} htmlFor="purpose">Purpose</label>
+          <input
+            className={classes.Input}
+            id="purpose"
+            value={newRequest.purpose}
+            onChange={handleInputChange}
+            readOnly={isViewMode || isDeleteMode}
+          />
+        </fieldset>
+
+        {/* Date & Time */}
+        <fieldset className={classes.Fieldset}>
+          <label className={classes.Label} htmlFor="datetime">Date & Time</label>
+          <input
+            className={classes.Input}
+            id="datetime"
+            type="datetime-local"
+            value={newRequest.datetime}
+            onChange={handleInputChange}
+            readOnly={isViewMode || isDeleteMode}
+          />
+        </fieldset>
+
+        {/* Status */}
+        {!isAddMode && (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="status">Status</label>
+            <input
+              className={classes.Input}
+              id="status"
+              value={newRequest.status}
+              onChange={handleInputChange}
+              readOnly={isViewMode || isDeleteMode}
+            />
+          </fieldset>
+        )}
+
+        {/* Location */}
+        <fieldset className={classes.Fieldset}>
+          <label className={classes.Label} htmlFor="request_location">Location</label>
+          <input
+            className={classes.Input}
+            id="request_location"
+            value={newRequest.request_location}
+            onChange={handleInputChange}
+            readOnly={isViewMode || isDeleteMode}
+          />
+        </fieldset>
+
+        {/* Department */}
+        {isAddMode && (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="department">Department</label>
+            <select
+              className={classes.Input}
+              id="department"
+              value={newRequest.department}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">Choose</option>
+              {DEPT_DATA.map((dept, index) => (
+                <option key={index} value={dept.name}>
+                  {dept.name}
+                </option>
+              ))}
+            </select>
+          </fieldset>
+        )}
+
+         {/* Technician */}
+         {isViewMode || isDeleteMode ?  (
+         <fieldset className={classes.Fieldset}>
+          <label className={classes.Label} htmlFor="technician">Technician</label>
+          <input
+            className={classes.Input}
+            id="technician"
+            value={newRequest.technician}
+            onChange={handleInputChange}
+            readOnly={isViewMode}
+          />
+        </fieldset>
+         ): null}
+         
+
+        {/* Technician */}
+        {(isEditMode || isAddMode) && (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="technician">Technician</label>
+            <select
+              className={classes.Input}
+              id="technician"
+              value={newRequest.technician}
+              onChange={handleInputChange}
+              disabled={isViewMode || isDeleteMode}
+            >
+              <option value="">Choose</option>
+              {technicians.map((tech, index) => (
+                <option key={index} value={tech}>
+                  {tech}
+                </option>
+              ))}
+            </select>
+          </fieldset>
+        )}
+
+        {/* User ID */}
+     
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="user_id">User ID</label>
+            <input
+              className={classes.Input}
+              id="user_id"
+              value={newRequest.user_id}
+              onChange={handleInputChange}
+              readOnly={isViewMode || isDeleteMode || isAddMode}
+            />
+          </fieldset>
+        
+
+        {/* User First Name */}
+        {!isAddMode && (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="user_firstname">User First Name</label>
+            <input
+              className={classes.Input}
+              id="user_firstname"
+              value={newRequest.user_firstname}
+              onChange={handleInputChange}
+              readOnly={isViewMode || isDeleteMode}
+            />
+          </fieldset>
+        )}
+
+        {/* User Last Name */}
+        {!isAddMode && (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="user_lastname">User Last Name</label>
+            <input
+              className={classes.Input}
+              id="user_lastname"
+              value={newRequest.user_lastname}
+              onChange={handleInputChange}
+              readOnly={isViewMode || isDeleteMode}
+            />
+          </fieldset>
+        )}
+
+        {/* Attachment */}
+        {!isAddMode && (
+        <fieldset className={classes.Fieldset}>
+          <label className={classes.Label} htmlFor="attachment">Attachment</label>
+          <input
+            className={classes.Input}
+            id="attachment"
+            value={newRequest.attachment}
+            onChange={handleInputChange}
+            readOnly={isViewMode || isDeleteMode}
+          />
+        </fieldset>
+        )}
+
+        {/* File Upload for Add Mode */}
+        {isAddMode && (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="attachment">Attachment</label>
+            <input
+              className={classes.Input}
+              id="attachment"
+              type="file"
+              onChange={handleFileChange}
+            />
+            {newRequest.attachment && <p>Selected file: {newRequest.attachment}</p>}
+          </fieldset>
+        )}
+
+        {/* Buttons */}
+        <div className={classes.ButtonGroup}>
+          {isViewMode && (
+            <Dialog.Close asChild>
+              <button className={classes.CloseButton}>Close</button>
+            </Dialog.Close>
+          )}
+
+          {isEditMode && (
+            <>
+              <button className={classes.SaveButton} onClick={handleAddRequest}>
+                Save Changes
+              </button>
+              <Dialog.Close asChild>
+                <button className={classes.CloseButton}>Close</button>
+              </Dialog.Close>
+            </>
+          )}
+
+          {isAddMode && (
+            <>
+              <button className={classes.SaveButton} onClick={handleAddRequest}>
+                Add Request
+              </button>
+              <Dialog.Close asChild>
+                <button className={classes.CloseButton}>Cancel</button>
+              </Dialog.Close>
+            </>
+          )}
+
+          {isDeleteMode && (
+            <>
+              <p className={classes.DeleteConfirmation}>
+                Are you sure you want to delete request <strong>{newRequest.request_id}</strong>?
+              </p>
+              <button className={classes.DeleteButton} onClick={handleDelete}>
+                Delete Request
+              </button>
+              <Dialog.Close asChild>
+                <button className={classes.CancelButton}>Cancel</button>
+              </Dialog.Close>
+            </>
+          )}
+        </div>
+      </Dialog.Content>
+    </Dialog.Portal>
+  );
+};
+
+export default RequestTableDialogPortal;

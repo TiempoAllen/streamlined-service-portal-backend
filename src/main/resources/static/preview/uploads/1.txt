@@ -1,0 +1,329 @@
+import React, { useState } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
+import axios from "axios";
+import { DEPT_DATA } from "../../pages/Register/department-data";
+import classes from "./RequestTableDialogPortal.module.css";
+
+const technicians = [
+  "Janitor",
+  "Electrician",
+  "Plumber",
+  "Carpentry",
+  "Masonry",
+  "Maintenance"
+];
+
+const RequestTableDialogPortal = ({ request = {}, mode, onDelete, onAddRequest, user_id }) => {
+  console.log("User ID in RequestTableDialogPortal:", user_id);
+  const isViewMode = mode === "view";
+  const isEditMode = mode === "edit";
+  const isDeleteMode = mode === "delete";
+  const isAddMode = mode === "add";
+
+  const [formData, setFormData] = useState({
+    request_location: request.request_location || "",
+    datetime: request.datetime || "",
+    purpose: request.purpose || "",
+    technician: request.technician || "",
+    attachment: null,
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      attachment: e.target.files[0],
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const rawDatetime = formData.datetime;
+    const formattedDatetime = new Date(rawDatetime).toISOString();
+
+    const requestData = new FormData();
+    requestData.append("request_location", formData.request_location);
+    requestData.append("datetime", formattedDatetime);
+    requestData.append("purpose", formData.purpose);
+    requestData.append("user_id", user_id);
+    requestData.append("technician", formData.technician);
+    if (formData.attachment) {
+      requestData.append("attachment", formData.attachment);
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/request/add",
+        requestData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        onAddRequest(response.data); // Call the parent callback to update state
+        alert("Request added successfully.");
+      } else {
+        throw new Error("Failed to add request.");
+      }
+    } catch (error) {
+      console.error("Error adding request:", error.response || error.message || error);
+      alert("Error adding request.");
+    }
+  };
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(formData.request_id);
+    }
+  };
+
+  return (
+    <Dialog.Portal>
+      <Dialog.Overlay className={classes.DialogOverlay} />
+      <Dialog.Content className={classes.DialogContent}>
+        <Dialog.Title className={classes.DialogTitle}>
+          {isViewMode && "View Request Details"}
+          {isEditMode && "Edit Request Details"}
+          {isDeleteMode && "Delete Request"}
+          {isAddMode && "Add Request"}
+        </Dialog.Title>
+
+        {/* Request ID */}
+        {isAddMode ? null : (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="request_id">Request ID</label>
+            <input
+              className={classes.Input}
+              id="request_id"
+              value={formData.request_id}
+              readOnly
+            />
+          </fieldset>
+        )}
+
+        {/* Purpose */}
+        <fieldset className={classes.Fieldset}>
+          <label className={classes.Label} htmlFor="purpose">Purpose</label>
+          <input
+            className={classes.Input}
+            id="purpose"
+            name="purpose"
+            value={formData.purpose}
+            onChange={handleInputChange}
+            readOnly={isViewMode || isDeleteMode}
+          />
+        </fieldset>
+
+        {/* Date & Time */}
+        <fieldset className={classes.Fieldset}>
+          <label className={classes.Label} htmlFor="datetime">Date & Time</label>
+          <input
+            className={classes.Input}
+            id="datetime"
+            name="datetime"
+            type="datetime-local"
+            value={formData.datetime}
+            onChange={handleInputChange}
+            readOnly={isViewMode || isDeleteMode}
+          />
+        </fieldset>
+
+        {/* Status */}
+        {!isAddMode && (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="status">Status</label>
+            <input
+              className={classes.Input}
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleInputChange}
+              readOnly={isViewMode || isDeleteMode}
+            />
+          </fieldset>
+        )}
+
+        {/* Location */}
+        <fieldset className={classes.Fieldset}>
+          <label className={classes.Label} htmlFor="request_location">Location</label>
+          <input
+            className={classes.Input}
+            id="request_location"
+            name="request_location"
+            value={formData.request_location}
+            onChange={handleInputChange}
+            readOnly={isViewMode || isDeleteMode}
+          />
+        </fieldset>
+
+        {/* Department */}
+        {isAddMode && (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="department">Department</label>
+            <select
+              className={classes.Input}
+              id="department"
+              name="department"
+              value={formData.department}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">Choose</option>
+              {DEPT_DATA.map((dept, index) => (
+                <option key={index} value={dept.name}>
+                  {dept.name}
+                </option>
+              ))}
+            </select>
+          </fieldset>
+        )}
+
+        {/* Technician */}
+        {(isEditMode || isAddMode) && (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="technician">Technician</label>
+            <select
+              className={classes.Input}
+              id="technician"
+              name="technician"
+              value={formData.technician}
+              onChange={handleInputChange}
+              disabled={isViewMode || isDeleteMode}
+            >
+              <option value="">Choose</option>
+              {technicians.map((tech, index) => (
+                <option key={index} value={tech}>
+                  {tech}
+                </option>
+              ))}
+            </select>
+          </fieldset>
+        )}
+
+        {/* User ID */}
+        <fieldset className={classes.Fieldset}>
+          <label className={classes.Label} htmlFor="user_id">User ID</label>
+          <input
+            className={classes.Input}
+            id="user_id"
+            name="user_id"
+            value={user_id}
+            readOnly
+          />
+        </fieldset>
+
+        {/* User First Name */}
+        {!isAddMode && (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="user_firstname">User First Name</label>
+            <input
+              className={classes.Input}
+              id="user_firstname"
+              name="user_firstname"
+              value={formData.user_firstname}
+              onChange={handleInputChange}
+              readOnly={isViewMode || isDeleteMode}
+            />
+          </fieldset>
+        )}
+
+        {/* User Last Name */}
+        {!isAddMode && (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="user_lastname">User Last Name</label>
+            <input
+              className={classes.Input}
+              id="user_lastname"
+              name="user_lastname"
+              value={formData.user_lastname}
+              onChange={handleInputChange}
+              readOnly={isViewMode || isDeleteMode}
+            />
+          </fieldset>
+        )}
+
+        {/* Attachment */}
+        {!isAddMode && (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="attachment">Attachment</label>
+            <input
+              className={classes.Input}
+              id="attachment"
+              name="attachment"
+              value={formData.attachment}
+              readOnly={isViewMode || isDeleteMode}
+            />
+          </fieldset>
+        )}
+
+        {/* File Upload for Add Mode */}
+        {isAddMode && (
+          <fieldset className={classes.Fieldset}>
+            <label className={classes.Label} htmlFor="attachment">Attachment</label>
+            <input
+              className={classes.Input}
+              id="attachment"
+              name="attachment"
+              type="file"
+              onChange={handleFileChange}
+            />
+            {formData.attachment && <p>Selected file: {formData.attachment.name}</p>}
+          </fieldset>
+        )}
+
+        {/* Buttons */}
+        <div className={classes.ButtonGroup}>
+          {isViewMode && (
+            <Dialog.Close asChild>
+              <button className={classes.Button} type="button">
+                Close
+              </button>
+            </Dialog.Close>
+          )}
+          {isEditMode && (
+            <>
+              <button className={classes.Button} onClick={handleSubmit}>
+                Save Changes
+              </button>
+              <Dialog.Close asChild>
+                <button className={classes.Button} type="button">
+                  Cancel
+                </button>
+              </Dialog.Close>
+            </>
+          )}
+          {isDeleteMode && (
+            <>
+              <button className={classes.Button} onClick={handleDelete}>
+                Delete
+              </button>
+              <Dialog.Close asChild>
+                <button className={classes.Button} type="button">
+                  Cancel
+                </button>
+              </Dialog.Close>
+            </>
+          )}
+          {isAddMode && (
+            <button className={classes.SaveButton} onClick={handleSubmit}>
+              Add Request
+            </button>
+          )}
+        </div>
+      </Dialog.Content>
+    </Dialog.Portal>
+  );
+};
+
+export default RequestTableDialogPortal;
