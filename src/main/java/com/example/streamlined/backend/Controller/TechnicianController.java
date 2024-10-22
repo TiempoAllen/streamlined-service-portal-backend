@@ -21,7 +21,7 @@ import com.example.streamlined.backend.Service.TechnicianService;
 
 @RestController
 @RequestMapping("/technician")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:5173")
 public class TechnicianController {
 	@Autowired
 	TechnicianService tserv;

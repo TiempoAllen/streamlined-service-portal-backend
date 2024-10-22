@@ -37,7 +37,7 @@ import com.example.streamlined.backend.Service.TechnicianService;
 
 @RestController
 @RequestMapping("/request")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:5173")
 public class RequestController {
 	@Autowired
 	RequestService rserv;
@@ -78,12 +78,12 @@ public class RequestController {
 	    if (attachment != null && !attachment.isEmpty()) {
             byte[] bytes = attachment.getBytes();
             Path uploadDir = Paths.get("uploads");
-    
+
             // Check if the directory exists, if not create it
             if (!Files.exists(uploadDir)) {
                 Files.createDirectories(uploadDir);
             }
-    
+
             Path path = uploadDir.resolve(attachment.getOriginalFilename());
             Files.write(path, bytes);
             request.setAttachment(path.toString());
@@ -132,7 +132,7 @@ public ResponseEntity<RequestEntity> updateRequest(
         Files.write(path, bytes);
         existingRequest.setAttachment(path.toString());
     }
-    
+
 
     // Save the updated request (ensure you handle your update logic in the service layer)
     RequestEntity updatedRequest = rserv.addRequest(existingRequest);
@@ -221,11 +221,11 @@ public ResponseEntity<RequestEntity> updateRequest(
         try {
             // Sanitize the file name to remove unwanted characters
             fileName = fileName.trim().replaceAll("[\\n\\r]", ""); // Remove newlines
-    
+
             // Define the path to the uploads directory
             Path filePath = Paths.get("uploads").resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
-    
+
             // Check if the resource exists and is readable
             if (resource.exists() && resource.isReadable()) {
                 return ResponseEntity.ok().body(resource);

@@ -25,7 +25,7 @@ import com.example.streamlined.backend.Service.UserService;
 
 @RestController
 @RequestMapping("/user")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:5173")
 public class UserController {
 	@Autowired
 	UserService userv;
@@ -50,7 +50,7 @@ public class UserController {
 	public UserEntity updateUser(@RequestParam int uid, @RequestBody UserEntity newUserDetails) {
 		return userv.updateUser(uid, newUserDetails);
 	}
-	
+
 
 	@GetMapping("/all")
 	public List<UserEntity> getAllUsers(){
