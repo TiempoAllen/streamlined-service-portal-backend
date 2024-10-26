@@ -60,7 +60,7 @@ public class UserService {
 		return urepo.findById(user_id);
 	}
 
-	@SuppressWarnings("finally")
+	//@SuppressWarnings("finally")
 public UserEntity updateUser(int user_id, UserEntity newUserDetails) {
     try {
         // Find the existing user by ID

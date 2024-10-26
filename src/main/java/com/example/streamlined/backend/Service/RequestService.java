@@ -1,6 +1,5 @@
 package com.example.streamlined.backend.Service;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -13,7 +12,6 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.streamlined.backend.Entity.RequestEntity;
 import com.example.streamlined.backend.Entity.TechnicianEntity;
 import com.example.streamlined.backend.Entity.UserEntity;
-import com.example.streamlined.backend.Repository.NotificationRepository;
 import com.example.streamlined.backend.Repository.RequestRepository;
 import com.example.streamlined.backend.Repository.TechnicianRepository;
 import com.example.streamlined.backend.Repository.UserRepository;
@@ -158,12 +156,8 @@ public class RequestService {
 	public String deleteRequest (int request_id) {
 		String msg = "";
 
-		if(rrepo.findById(request_id) != null) {
-			rrepo.deleteById(request_id);
-			msg = "Request " + request_id + " is successfully deleted!";
-		} else {
-			msg = "Request " + request_id + " does not exist.";
-		}
+		rrepo.deleteById(request_id);
+		msg = "Request " + request_id + " is successfully deleted!";
 		return msg;
 	}
 }

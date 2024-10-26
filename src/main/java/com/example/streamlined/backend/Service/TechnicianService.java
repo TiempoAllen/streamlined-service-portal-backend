@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.streamlined.backend.Entity.RequestEntity;
+//import com.example.streamlined.backend.Entity.RequestEntity;
 import com.example.streamlined.backend.Entity.TechnicianEntity;
 import com.example.streamlined.backend.Repository.RequestRepository;
 import com.example.streamlined.backend.Repository.TechnicianRepository;
