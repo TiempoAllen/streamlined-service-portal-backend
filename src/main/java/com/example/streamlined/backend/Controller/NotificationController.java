@@ -21,7 +21,7 @@ public class NotificationController {
     NotificationService notificationService;
 
     @CrossOrigin(origins = {
-        "http://localhost:3000",  // Development environment
+        "http://localhost:5173",  // Development environment
         "https://cituserviceportal-gdrksvm3q-deployed-projects-4069a065.vercel.app" // Production environment
     }, allowCredentials = "true")
     

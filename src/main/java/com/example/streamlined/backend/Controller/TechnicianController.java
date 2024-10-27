@@ -22,7 +22,7 @@ import com.example.streamlined.backend.Service.TechnicianService;
 @RestController
 @RequestMapping("/technician")
 @CrossOrigin(origins = {
-        "http://localhost:3000",  // Development environment
+        "http://localhost:5173",  // Development environment
         "https://cituserviceportal-gdrksvm3q-deployed-projects-4069a065.vercel.app" // Production environment
     }, allowCredentials = "true")
 public class TechnicianController {
