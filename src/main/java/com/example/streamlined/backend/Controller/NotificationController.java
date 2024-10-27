@@ -20,7 +20,11 @@ public class NotificationController {
     @Autowired
     NotificationService notificationService;
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = {
+        "http://localhost:3000",  // Development environment
+        "https://cituserviceportal-gdrksvm3q-deployed-projects-4069a065.vercel.app" // Production environment
+    }, allowCredentials = "true")
+    
     @GetMapping("/{userId}")
     public List<NotificationEntity> getNotifications(@PathVariable Long userId) {
         return notificationService.getNotificationsForUser(userId);

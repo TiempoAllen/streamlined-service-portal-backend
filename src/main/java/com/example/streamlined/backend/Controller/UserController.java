@@ -25,7 +25,10 @@ import com.example.streamlined.backend.Service.UserService;
 
 @RestController
 @RequestMapping("/user")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+    "http://localhost:3000",  // Development environment
+    "https://cituserviceportal-gdrksvm3q-deployed-projects-4069a065.vercel.app" // Production environment
+}, allowCredentials = "true")
 public class UserController {
 	@Autowired
 	UserService userv;
