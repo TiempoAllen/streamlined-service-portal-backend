@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Welcome to Streamlined</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <!-- Hero Section -->
+        <div class="bg-light py-5">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <h1 class="display-4 fw-bold">Welcome to Streamlined</h1>
+                        <p class="lead">Your comprehensive solution for efficient business management and organization.</p>
+                        <div class="mt-4">
+                            <a href="/register" class="btn btn-primary btn-lg me-2">Get Started</a>
+                            <a href="/learn-more" class="btn btn-outline-secondary btn-lg">Learn More</a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <!-- You can add an image here -->
+                        <div class="text-center">
+                            <img src="https://via.placeholder.com/500x300" alt="Hero image" class="img-fluid rounded shadow">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="container py-5">
+            <h2 class="text-center mb-5">Our Features</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <h3 class="h5 card-title">Easy Management</h3>
+                            <p class="card-text">Streamline your business processes with our intuitive management tools.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <h3 class="h5 card-title">Real-time Analytics</h3>
+                            <p class="card-text">Get instant insights with our powerful analytics dashboard.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <h3 class="h5 card-title">Secure Platform</h3>
+                            <p class="card-text">Your data is protected with enterprise-grade security measures.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action Section -->
+        <div class="bg-primary text-white py-5">
+            <div class="container text-center">
+                <h2 class="mb-4">Ready to get started?</h2>
+                <p class="lead mb-4">Join thousands of businesses already using Streamlined.</p>
+                <a href="/register" class="btn btn-light btn-lg">Sign Up Now</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
