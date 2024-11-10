@@ -15,6 +15,7 @@ import com.example.streamlined.backend.Service.NotificationService;
 
 @RestController
 @RequestMapping("/notifications")
+@CrossOrigin(origins = "http://localhost:5173")
 public class NotificationController {
 
     @Autowired

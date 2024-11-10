@@ -1,7 +1,5 @@
 package com.example.streamlined.backend.Entity;
 
-import java.sql.Timestamp;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
@@ -38,9 +36,6 @@ public class RequestEntity {
     @Column(name = "request_location")
     private String request_location;
 
-    @Column(name = "department")
-    private String department;
-
     @Column(name = "user_id")
     private Long user_id;
 
@@ -50,14 +45,17 @@ public class RequestEntity {
     @Column(name = "user_lastname")
     private String user_lastname;
 
-    @Column(name = "start_time")
-    private String startTime; // Changed to String
+    @Column(name = "scheduled_date")
+    private String scheduledDate; // Changed to String
 
-    @Column(name = "end_time")
-    private String endTime; // Changed to String
+    @Column(name = "preferred_date")
+    private String preferredDate; // Changed to String
 
     @Column(name = "attachment")
-    private String attachment;
+	private String attachment;
+
+	@Column(name = "urgency_level")
+    private String urgency_level;
 
     @Column(name = "denial_reason", nullable = true)
     private String denialReason;
@@ -77,8 +75,8 @@ public class RequestEntity {
 	}
 
 	public RequestEntity(Long request_id, String title, String description, String datetime, String status,
-			String request_technician, String request_location, String department, Long user_id, String user_firstname,
-			String user_lastname, String startTime, String endTime, String attachment, String denialReason,
+			String request_technician, String request_location,  Long user_id, String user_firstname,
+			String user_lastname, String scheduledDate, String preferredDate, String attachment, String urgency_level, String denialReason,
 			String errorMessage, TechnicianEntity technician, Long technicianId) {
 		super();
 		this.request_id = request_id;
@@ -88,13 +86,13 @@ public class RequestEntity {
 		this.status = status;
 		this.request_technician = request_technician;
 		this.request_location = request_location;
-		this.department = department;
 		this.user_id = user_id;
 		this.user_firstname = user_firstname;
 		this.user_lastname = user_lastname;
-		this.startTime = startTime;
-		this.endTime = endTime;
+		this.scheduledDate = scheduledDate;
+		this.preferredDate = preferredDate;
 		this.attachment = attachment;
+		this.urgency_level = urgency_level;
 		this.denialReason = denialReason;
 		this.errorMessage = errorMessage;
 		this.technician = technician;
@@ -157,14 +155,6 @@ public class RequestEntity {
 		this.request_location = request_location;
 	}
 
-	public String getDepartment() {
-		return department;
-	}
-
-	public void setDepartment(String department) {
-		this.department = department;
-	}
-
 	public Long getUser_id() {
 		return user_id;
 	}
@@ -189,20 +179,20 @@ public class RequestEntity {
 		this.user_lastname = user_lastname;
 	}
 
-	public String getStartTime() {
-		return startTime;
+	public String getScheduledDate() {
+		return scheduledDate;
 	}
 
-	public void setStartTime(String startTime) {
-		this.startTime = startTime;
+	public void setScheduledDate(String scheduledDate) {
+		this.scheduledDate = scheduledDate;
 	}
 
-	public String getEndTime() {
-		return endTime;
+	public String getPreferredDate() {
+		return preferredDate;
 	}
 
-	public void setEndTime(String endTime) {
-		this.endTime = endTime;
+	public void setPreferredDate(String preferredDate) {
+		this.preferredDate = preferredDate;
 	}
 
 	public String getAttachment() {
@@ -211,6 +201,14 @@ public class RequestEntity {
 
 	public void setAttachment(String attachment) {
 		this.attachment = attachment;
+	}
+
+	public String getUrgencyLevel() {
+		return urgency_level;
+	}
+
+	public void setUrgencyLevel(String urgency_level) {
+		this.urgency_level = urgency_level;
 	}
 
 	public String getDenialReason() {

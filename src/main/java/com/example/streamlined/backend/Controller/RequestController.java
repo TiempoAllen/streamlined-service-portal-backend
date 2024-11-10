@@ -4,17 +4,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.streamlined.backend.Entity.RequestEntity;
-import com.example.streamlined.backend.Entity.TechnicianEntity;
 import com.example.streamlined.backend.Service.RequestService;
 import com.example.streamlined.backend.Service.TechnicianService;
 
@@ -54,10 +48,11 @@ public class RequestController {
 	    @RequestParam("request_technician") String request_technician,
 	    @RequestParam("request_location") String request_location,
 	    @RequestParam("datetime") String datetime,
-	    @RequestParam(value = "endTime", required = false) String endTime,
-	    @RequestParam(value = "startTime", required = false) String startTime,
+	    @RequestParam(value = "preferredDate", required = false) String preferredDate,
+	    @RequestParam(value = "scheduledDate", required = false) String scheduledDate,
 	    @RequestParam(value = "title" , required = false) String title,
 	    @RequestParam("description") String description,
+        @RequestParam("urgency_level") String urgency_level,
 	    @RequestParam("user_id") Long user_id,
 	    @RequestParam(value = "attachment" , required = false) MultipartFile attachment) throws IOException {
 
@@ -67,11 +62,12 @@ public class RequestController {
 
 	    // No need to parse datetime strings, just set them directly
 	    request.setDatetime(datetime);
-	    request.setEndTime(endTime);
-	    request.setStartTime(startTime);
+	    request.setPreferredDate(preferredDate);
+	    request.setScheduledDate(scheduledDate);
 
-	    request.setTitle(title);
-	    request.setDescription(description);
+        request.setTitle(title);
+        request.setDescription(description);
+	    request.setUrgencyLevel(urgency_level);
 	    request.setUser_id(user_id);
 
 	    // Save the file to a local directory or cloud storage
@@ -169,16 +165,16 @@ public ResponseEntity<RequestEntity> updateRequest(
 
 
 
-	@PostMapping("/assignTechnician")
-	public ResponseEntity<String> assignTechnicianToRequest(
-	        @RequestParam Long request_id,
-	        @RequestParam Long tech_id,
-	        @RequestParam String startTime, // String instead of Timestamp
-	        @RequestParam String endTime) {  // String instead of Timestamp
+	// @PostMapping("/assignTechnician")
+	// public ResponseEntity<String> assignTechnicianToRequest(
+	//         @RequestParam Long request_id,
+	//         @RequestParam Long tech_id,
+	//         @RequestParam String scheduledDate, // String instead of Timestamp
+	//         @RequestParam String preferredDate) {  // String instead of Timestamp
 
-	    rserv.assignTechnicianToRequest(request_id, tech_id, startTime, endTime);
-	    return ResponseEntity.ok("Technician " + tech_id + " assigned to request " + request_id + " successfully");
-	}
+	//     rserv.assignTechnicianToRequest(request_id, tech_id, scheduledDate, preferredDate);
+	//     return ResponseEntity.ok("Technician " + tech_id + " assigned to request " + request_id + " successfully");
+	// }
 
 
 	@PostMapping("/removeTechnician")
@@ -238,4 +234,11 @@ public ResponseEntity<RequestEntity> updateRequest(
             return ResponseEntity.status(500).body(null);
         }
     }
+
+    @DeleteMapping("/deleteAll")
+    public ResponseEntity<String> deleteAllRequests() {
+        String result = rserv.deleteAllRequests();
+        return ResponseEntity.ok(result);
+    }
+
 }
