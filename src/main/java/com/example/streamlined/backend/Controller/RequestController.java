@@ -98,6 +98,9 @@ public ResponseEntity<RequestEntity> updateRequest(
         @RequestParam(value = "request_technician", required = false) String request_technician,
         @RequestParam(value = "request_location", required = false) String request_location,
         @RequestParam(value = "datetime", required = false) String datetime,  // Keep as String
+        @RequestParam(value = "title", required = false) String title,
+        @RequestParam(value = "urgency_level", required = false) String urgency_level,
+        @RequestParam(value = "preferredDate", required = false) String preferredDate,
         @RequestParam(value = "description", required = false) String description,
         @RequestParam(value = "user_id", required = false) Long user_id,
         @RequestParam(value = "attachment", required = false) MultipartFile attachment) throws IOException {
@@ -113,7 +116,7 @@ public ResponseEntity<RequestEntity> updateRequest(
     // Update fields if provided
     if (request_technician != null) existingRequest.setRequest_technician(request_technician);
     if (request_location != null) existingRequest.setRequest_location(request_location);
-    if (datetime != null) existingRequest.setDatetime(datetime);  // Directly set the String datetime
+    if (datetime != null) existingRequest.setDatetime(datetime);
     if (description != null) existingRequest.setDescription(description);
     if (user_id != null) existingRequest.setUser_id(user_id);
 
