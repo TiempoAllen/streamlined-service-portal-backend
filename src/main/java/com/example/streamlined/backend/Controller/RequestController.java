@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.streamlined.backend.Entity.RequestEntity;
 import com.example.streamlined.backend.Service.RequestService;
@@ -52,7 +54,7 @@ public class RequestController {
 	    @RequestParam("request_location") String request_location,
 	    @RequestParam("datetime") String datetime,
 	    @RequestParam(value = "preferredDate", required = false) String preferredDate,
-	    @RequestParam(value = "scheduledDate", required = false) String scheduledDate,
+	    // @RequestParam(value = "scheduledDate", required = false) String scheduledDate,
 	    @RequestParam(value = "title" , required = false) String title,
 	    @RequestParam("description") String description,
         @RequestParam("urgency_level") String urgency_level,
@@ -66,7 +68,7 @@ public class RequestController {
 	    // No need to parse datetime strings, just set them directly
 	    request.setDatetime(datetime);
 	    request.setPreferredDate(preferredDate);
-	    request.setScheduledDate(scheduledDate);
+	    // request.setScheduledDate(scheduledDate);
 
         request.setTitle(title);
         request.setDescription(description);
@@ -116,7 +118,13 @@ public ResponseEntity<RequestEntity> updateRequest(
     // Update fields if provided
     if (request_technician != null) existingRequest.setRequest_technician(request_technician);
     if (request_location != null) existingRequest.setRequest_location(request_location);
-    if (datetime != null) existingRequest.setDatetime(datetime);
+    if (datetime != null)
+        existingRequest.setDatetime(datetime);
+    if (title != null)
+        existingRequest.setTitle(title);
+    if (urgency_level != null)
+        existingRequest.setUrgencyLevel(urgency_level);
+    if (preferredDate != null) existingRequest.setPreferredDate(preferredDate);
     if (description != null) existingRequest.setDescription(description);
     if (user_id != null) existingRequest.setUser_id(user_id);
 
@@ -139,7 +147,7 @@ public ResponseEntity<RequestEntity> updateRequest(
     // Save the updated request (ensure you handle your update logic in the service layer)
     RequestEntity updatedRequest = rserv.addRequest(existingRequest);
     return ResponseEntity.ok(updatedRequest);
-        }
+    }
 
 
 
@@ -161,13 +169,32 @@ public ResponseEntity<RequestEntity> updateRequest(
     }
 
 	@PutMapping("/updateStatus")
-	public RequestEntity updateStatus(@RequestParam int request_id, @RequestBody RequestEntity newRequestStatus) {
-	    if ("Denied".equals(newRequestStatus.getStatus()) && newRequestStatus.getDenialReason() == null) {
-	        throw new IllegalArgumentException("Denial reason must be provided when denying a request.");
-	    }
+    public RequestEntity updateStatus(@RequestParam int request_id, @RequestBody RequestEntity newRequestStatus) {
+        if ("Denied".equals(newRequestStatus.getStatus()) && newRequestStatus.getDenialReason() == null) {
+            throw new IllegalArgumentException("Denial reason must be provided when denying a request.");
+        }
 
-	    return rserv.updateStatus(request_id, newRequestStatus);
-	}
+        return rserv.updateStatus(request_id, newRequestStatus);
+    }
+
+    @PostMapping("/assignTechnician")
+public ResponseEntity<String> assignTechnicianToRequest(
+        @RequestParam Long request_id,
+        @RequestParam Long tech_id,
+        @RequestParam String scheduledDate) {
+
+    try {
+        RequestEntity updatedRequest = rserv.assignTechnicianToRequest(request_id, tech_id, scheduledDate);
+        return ResponseEntity.ok("Technician " + tech_id + " assigned to request " + request_id + " successfully");
+    } catch (ResponseStatusException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getReason());
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("An error occurred while assigning the technician.");
+    }
+}
+
+
 
 
 
