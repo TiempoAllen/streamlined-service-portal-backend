@@ -60,6 +60,9 @@ public class RequestEntity {
     @Column(name = "denial_reason", nullable = true)
     private String denialReason;
 
+    @Column(name = "is_opened", nullable = false)
+    private Boolean isOpened = false; // Default value is set to false
+
     private String errorMessage;
 
     @ManyToOne
@@ -72,12 +75,13 @@ public class RequestEntity {
 
 	public RequestEntity() {
 		super();
+		this.isOpened = false; // Default value for no-argument constructor
 	}
 
 	public RequestEntity(Long request_id, String title, String description, String datetime, String status,
-			String request_technician, String request_location,  Long user_id, String user_firstname,
-			String user_lastname, String scheduledDate, String preferredDate, String attachment, String urgency_level, String denialReason,
-			String errorMessage, TechnicianEntity technician, Long technicianId) {
+			String request_technician, String request_location, Long user_id, String user_firstname,
+			String user_lastname, String scheduledDate, String preferredDate, String attachment, String urgency_level, 
+			String denialReason, Boolean isOpened, String errorMessage, TechnicianEntity technician, Long technicianId) {
 		super();
 		this.request_id = request_id;
 		this.title = title;
@@ -94,9 +98,19 @@ public class RequestEntity {
 		this.attachment = attachment;
 		this.urgency_level = urgency_level;
 		this.denialReason = denialReason;
+		this.isOpened = isOpened;
 		this.errorMessage = errorMessage;
 		this.technician = technician;
 		this.technicianId = technicianId;
+	}
+
+	// Getter and Setter for isOpened
+	public Boolean getIsOpened() {
+		return isOpened;
+	}
+
+	public void setIsOpened(Boolean isOpened) {
+		this.isOpened = isOpened;
 	}
 
 	public Long getRequest_id() {
@@ -242,6 +256,5 @@ public class RequestEntity {
 	public void setTechnicianId(Long technicianId) {
 		this.technicianId = technicianId;
 	}
-
 
 }
