@@ -39,11 +39,18 @@ public class UserController {
 	}
 
 
-	@PostMapping("/add")
+    @PostMapping("/add")
     public ResponseEntity<?> insertUser(@RequestBody UserEntity user) {
         try {
             UserEntity newUser = userv.insertUser(user);
-            return ResponseEntity.ok(newUser);
+            // Create a copy of user without password
+            UserEntity safeUser = new UserEntity();
+            safeUser.setUser_id(newUser.getUser_id());
+            safeUser.setUsername(newUser.getUsername());
+            safeUser.setEmail(newUser.getEmail());
+            // Copy other non-sensitive fields
+
+            return ResponseEntity.ok(safeUser);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -76,8 +83,8 @@ public class UserController {
 		return userv.deleteUser(user_id);
 	}
 
-	@PostMapping("/login")
-	public ResponseEntity<?> loginUser(@RequestBody UserEntity loginRequest) {
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody UserEntity loginRequest) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
