@@ -4,18 +4,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,15 +25,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.streamlined.backend.Entity.RequestEntity;
-import com.example.streamlined.backend.Entity.TechnicianEntity;
 import com.example.streamlined.backend.Service.RequestService;
 import com.example.streamlined.backend.Service.TechnicianService;
 
 @RestController
 @RequestMapping("/request")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+    "http://localhost:5173",  // Development environment
+    "https://cituserviceportal-gdrksvm3q-deployed-projects-4069a065.vercel.app" // Production environment
+}, allowCredentials = "true")
 public class RequestController {
 	@Autowired
 	RequestService rserv;
@@ -54,10 +53,11 @@ public class RequestController {
 	    @RequestParam("request_technician") String request_technician,
 	    @RequestParam("request_location") String request_location,
 	    @RequestParam("datetime") String datetime,
-	    @RequestParam(value = "endTime", required = false) String endTime,
-	    @RequestParam(value = "startTime", required = false) String startTime,
+	    @RequestParam(value = "preferredDate", required = false) String preferredDate,
+	    // @RequestParam(value = "scheduledDate", required = false) String scheduledDate,
 	    @RequestParam(value = "title" , required = false) String title,
 	    @RequestParam("description") String description,
+        @RequestParam("urgency_level") String urgency_level,
 	    @RequestParam("user_id") Long user_id,
 	    @RequestParam(value = "attachment" , required = false) MultipartFile attachment) throws IOException {
 
@@ -67,11 +67,12 @@ public class RequestController {
 
 	    // No need to parse datetime strings, just set them directly
 	    request.setDatetime(datetime);
-	    request.setEndTime(endTime);
-	    request.setStartTime(startTime);
+	    request.setPreferredDate(preferredDate);
+	    // request.setScheduledDate(scheduledDate);
 
-	    request.setTitle(title);
-	    request.setDescription(description);
+        request.setTitle(title);
+        request.setDescription(description);
+	    request.setUrgencyLevel(urgency_level);
 	    request.setUser_id(user_id);
 
 	    // Save the file to a local directory or cloud storage
@@ -99,6 +100,9 @@ public ResponseEntity<RequestEntity> updateRequest(
         @RequestParam(value = "request_technician", required = false) String request_technician,
         @RequestParam(value = "request_location", required = false) String request_location,
         @RequestParam(value = "datetime", required = false) String datetime,  // Keep as String
+        @RequestParam(value = "title", required = false) String title,
+        @RequestParam(value = "urgency_level", required = false) String urgency_level,
+        @RequestParam(value = "preferredDate", required = false) String preferredDate,
         @RequestParam(value = "description", required = false) String description,
         @RequestParam(value = "user_id", required = false) Long user_id,
         @RequestParam(value = "attachment", required = false) MultipartFile attachment) throws IOException {
@@ -114,7 +118,13 @@ public ResponseEntity<RequestEntity> updateRequest(
     // Update fields if provided
     if (request_technician != null) existingRequest.setRequest_technician(request_technician);
     if (request_location != null) existingRequest.setRequest_location(request_location);
-    if (datetime != null) existingRequest.setDatetime(datetime);  // Directly set the String datetime
+    if (datetime != null)
+        existingRequest.setDatetime(datetime);
+    if (title != null)
+        existingRequest.setTitle(title);
+    if (urgency_level != null)
+        existingRequest.setUrgencyLevel(urgency_level);
+    if (preferredDate != null) existingRequest.setPreferredDate(preferredDate);
     if (description != null) existingRequest.setDescription(description);
     if (user_id != null) existingRequest.setUser_id(user_id);
 
@@ -137,7 +147,7 @@ public ResponseEntity<RequestEntity> updateRequest(
     // Save the updated request (ensure you handle your update logic in the service layer)
     RequestEntity updatedRequest = rserv.addRequest(existingRequest);
     return ResponseEntity.ok(updatedRequest);
-        }
+    }
 
 
 
@@ -159,26 +169,45 @@ public ResponseEntity<RequestEntity> updateRequest(
     }
 
 	@PutMapping("/updateStatus")
-	public RequestEntity updateStatus(@RequestParam int request_id, @RequestBody RequestEntity newRequestStatus) {
-	    if ("Denied".equals(newRequestStatus.getStatus()) && newRequestStatus.getDenialReason() == null) {
-	        throw new IllegalArgumentException("Denial reason must be provided when denying a request.");
-	    }
+    public RequestEntity updateStatus(@RequestParam int request_id, @RequestBody RequestEntity newRequestStatus) {
+        if ("Denied".equals(newRequestStatus.getStatus()) && newRequestStatus.getDenialReason() == null) {
+            throw new IllegalArgumentException("Denial reason must be provided when denying a request.");
+        }
 
-	    return rserv.updateStatus(request_id, newRequestStatus);
-	}
+        return rserv.updateStatus(request_id, newRequestStatus);
+    }
+
+    @PostMapping("/assignTechnician")
+public ResponseEntity<String> assignTechnicianToRequest(
+        @RequestParam Long request_id,
+        @RequestParam Long tech_id,
+        @RequestParam String scheduledDate) {
+
+    try {
+        RequestEntity updatedRequest = rserv.assignTechnicianToRequest(request_id, tech_id, scheduledDate);
+        return ResponseEntity.ok("Technician " + tech_id + " assigned to request " + request_id + " successfully");
+    } catch (ResponseStatusException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getReason());
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("An error occurred while assigning the technician.");
+    }
+}
 
 
 
-	@PostMapping("/assignTechnician")
-	public ResponseEntity<String> assignTechnicianToRequest(
-	        @RequestParam Long request_id,
-	        @RequestParam Long tech_id,
-	        @RequestParam String startTime, // String instead of Timestamp
-	        @RequestParam String endTime) {  // String instead of Timestamp
 
-	    rserv.assignTechnicianToRequest(request_id, tech_id, startTime, endTime);
-	    return ResponseEntity.ok("Technician " + tech_id + " assigned to request " + request_id + " successfully");
-	}
+
+	// @PostMapping("/assignTechnician")
+	// public ResponseEntity<String> assignTechnicianToRequest(
+	//         @RequestParam Long request_id,
+	//         @RequestParam Long tech_id,
+	//         @RequestParam String scheduledDate, // String instead of Timestamp
+	//         @RequestParam String preferredDate) {  // String instead of Timestamp
+
+	//     rserv.assignTechnicianToRequest(request_id, tech_id, scheduledDate, preferredDate);
+	//     return ResponseEntity.ok("Technician " + tech_id + " assigned to request " + request_id + " successfully");
+	// }
 
 
 	@PostMapping("/removeTechnician")
@@ -238,4 +267,11 @@ public ResponseEntity<RequestEntity> updateRequest(
             return ResponseEntity.status(500).body(null);
         }
     }
+
+    @DeleteMapping("/deleteAll")
+    public ResponseEntity<String> deleteAllRequests() {
+        String result = rserv.deleteAllRequests();
+        return ResponseEntity.ok(result);
+    }
+
 }

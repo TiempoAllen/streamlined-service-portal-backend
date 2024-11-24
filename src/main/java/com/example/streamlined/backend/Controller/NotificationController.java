@@ -19,15 +19,24 @@ import com.example.streamlined.backend.Service.NotificationService;
 
 @RestController
 @RequestMapping("/notifications")
+@CrossOrigin(origins = "http://localhost:5173")
 public class NotificationController {
 
     @Autowired
     NotificationService notificationService;
 
+<<<<<<< HEAD
     @Autowired
     RequestRepository requestRepository;
 
     @CrossOrigin(origins = "http://localhost:3000")
+=======
+    @CrossOrigin(origins = {
+        "http://localhost:5173",  // Development environment
+        "https://cituserviceportal-gdrksvm3q-deployed-projects-4069a065.vercel.app" // Production environment
+    }, allowCredentials = "true")
+    
+>>>>>>> master
     @GetMapping("/{userId}")
     public List<NotificationEntity> getNotifications(@PathVariable Long userId) {
         return notificationService.getNotificationsForUser(userId);

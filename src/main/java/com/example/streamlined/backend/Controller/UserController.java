@@ -1,10 +1,14 @@
 package com.example.streamlined.backend.Controller;
 
+<<<<<<< HEAD
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+=======
+//import java.util.HashMap;
+>>>>>>> master
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,7 +42,10 @@ import jakarta.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/user")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+    "http://localhost:5173",  // Development environment
+    "https://cituserviceportal-gdrksvm3q-deployed-projects-4069a065.vercel.app" // Production environment
+}, allowCredentials = "true")
 public class UserController {
 	@Autowired
 	UserService userv;
@@ -52,11 +59,18 @@ public class UserController {
 	}
 
 
-	@PostMapping("/add")
+    @PostMapping("/add")
     public ResponseEntity<?> insertUser(@RequestBody UserEntity user) {
         try {
             UserEntity newUser = userv.insertUser(user);
-            return ResponseEntity.ok(newUser);
+            // Create a copy of user without password
+            UserEntity safeUser = new UserEntity();
+            safeUser.setUser_id(newUser.getUser_id());
+            safeUser.setUsername(newUser.getUsername());
+            safeUser.setEmail(newUser.getEmail());
+            // Copy other non-sensitive fields
+
+            return ResponseEntity.ok(safeUser);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -89,8 +103,8 @@ public class UserController {
 		return userv.deleteUser(user_id);
 	}
 
-	@PostMapping("/login")
-	public ResponseEntity<?> loginUser(@RequestBody UserEntity loginRequest) {
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody UserEntity loginRequest) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
