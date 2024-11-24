@@ -32,6 +32,12 @@ public class NotificationEntity {
     @Column(name = "is_read")
     private boolean isRead;
 
+	@Column(name = "rating", nullable = true)
+	private Integer rating;
+
+	@Column(name = "user_feedback", nullable = true, length = 500)
+	private String userFeedback;
+
 	public NotificationEntity() {
 
 	}
@@ -43,6 +49,7 @@ public class NotificationEntity {
         this.timestamp = new Timestamp(System.currentTimeMillis());
         this.isRead = false;
     }
+
 
 	public Long getNotification_id() {
 		return notification_id;
@@ -92,6 +99,20 @@ public class NotificationEntity {
 		this.isRead = isRead;
 	}
 
-
+	public Integer getRating() {
+		return rating;
+	}
+	
+	public void setRating(Integer rating) {
+		this.rating = rating;
+	}
+	
+	public String getUserFeedback() {
+		return userFeedback;
+	}
+	
+	public void setUserFeedback(String userFeedback) {
+		this.userFeedback = userFeedback;
+	}
 
 }

@@ -1,12 +1,20 @@
 package com.example.streamlined.backend.Controller;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,9 +26,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.example.streamlined.backend.Entity.RequestEntity;
 import com.example.streamlined.backend.Entity.UserEntity;
+import com.example.streamlined.backend.Repository.UserRepository;
 import com.example.streamlined.backend.Service.UserService;
+
+import jakarta.persistence.EntityNotFoundException;
 
 
 @RestController
@@ -29,6 +42,9 @@ import com.example.streamlined.backend.Service.UserService;
 public class UserController {
 	@Autowired
 	UserService userv;
+
+    @Autowired
+    UserRepository urepo;
 
 	@GetMapping("/hello")
 	public String printHello() {
@@ -88,4 +104,55 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
     }
+        @PostMapping("/uploadProfilePicture/{user_id}")
+        public String uploadProfilePicture(Long user_id, MultipartFile file) {
+        UserEntity user = urepo.findByUserId(user_id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Define the uploads directory
+        String uploadDirectory = "uploads/";
+        Path uploadPath = Paths.get(uploadDirectory);
+
+        try {
+            // Ensure the uploads directory exists
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            // Save the file in the uploads directory
+            String fileName = "profile_" + user_id + "_" + file.getOriginalFilename();
+            Path filePath = uploadPath.resolve(fileName);
+            Files.write(filePath, file.getBytes());
+
+            // Save the file path to the database
+            user.setProfile_picture(filePath.toString());
+            urepo.save(user);
+
+            return "Profile picture uploaded successfully to " + filePath;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to upload profile picture: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{user_id}/profile-picture")
+    public byte[] getProfilePicture(Long user_id) {
+        UserEntity user = urepo.findByUserId(user_id)
+                .orElseThrow(() -> new EntityNotFoundException("User with ID " + user_id + " not found"));
+
+        // Retrieve the file path from the user entity
+        String filePath = user.getProfile_picture();
+        if (filePath == null || filePath.isEmpty()) {
+            throw new RuntimeException("Profile picture not found for user ID " + user_id);
+        }
+
+        try {
+            // Read the file as a byte array
+            Path path = Paths.get(filePath);
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read profile picture: " + e.getMessage());
+        }
+    }
+
+
 }

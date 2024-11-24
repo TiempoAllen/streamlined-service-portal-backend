@@ -44,6 +44,10 @@ public class UserService {
         }
     }
 
+    public UserEntity updateUser(UserEntity user) {
+        return urepo.save(user);
+    }
+
 	public UserEntity insertUser(UserEntity user) {
 		String email = user.getEmail();
 	    if (urepo.existsByEmail(email)) {
@@ -61,7 +65,7 @@ public class UserService {
 	}
 
 	@SuppressWarnings("finally")
-public UserEntity updateUser(int user_id, UserEntity newUserDetails) {
+    public UserEntity updateUser(int user_id, UserEntity newUserDetails) {
     try {
         // Find the existing user by ID
         UserEntity existingUser = urepo.findById(user_id).orElseThrow(

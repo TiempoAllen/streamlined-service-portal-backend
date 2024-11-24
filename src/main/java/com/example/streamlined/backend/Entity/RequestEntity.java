@@ -72,6 +72,12 @@ public class RequestEntity {
     @Column(name = "technician_id")
     private Long technicianId;
 
+	@Column(name = "rating", nullable = true)
+	private Integer rating; 
+
+	@Column(name = "user_feedback", nullable = true, length = 500)
+	private String userFeedback; 
+
 	public RequestEntity() {
 		super();
 	}
@@ -243,6 +249,22 @@ public class RequestEntity {
 
 	public void setTechnicianId(Long technicianId) {
 		this.technicianId = technicianId;
+	}
+
+	public Integer getRating() {
+		return rating;
+	}
+	
+	public void setRating(Integer rating) {
+		this.rating = rating;
+	}
+	
+	public String getUserFeedback() {
+		return userFeedback;
+	}
+	
+	public void setUserFeedback(String userFeedback) {
+		this.userFeedback = userFeedback;
 	}
 
 

@@ -30,4 +30,10 @@ public class NotificationService {
         notification.setRead(true);
         notificationRepository.save(notification);
     }
+
+    public void notifyUserForEvaluation(Long request_id, Long userId) {
+        String message = "Your request (ID: " + request_id + ") has been completed. Please provide feedback.";
+        addNotification(message, userId, "USER");
+    }
+    
 }
