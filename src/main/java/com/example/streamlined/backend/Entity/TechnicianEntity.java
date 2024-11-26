@@ -33,7 +33,9 @@ public class TechnicianEntity {
 
     private String tech_status;
 
-    private String tech_classification;
+	private String tech_classification;
+
+	private String tech_department;
 
     @Column(nullable = false)
     private boolean isavailable = true;
@@ -50,7 +52,7 @@ public class TechnicianEntity {
 	}
 
 	public TechnicianEntity(Long tech_id, String tech_name, String tech_phone, String tech_gender, String tech_status,
-			String tech_classification, boolean isavailable, List<RequestEntity> requests, String purpose) {
+			String tech_classification, String tech_department, boolean isavailable, List<RequestEntity> requests, String purpose) {
 		super();
 		this.tech_id = tech_id;
 		this.tech_name = tech_name;
@@ -58,6 +60,7 @@ public class TechnicianEntity {
 		this.tech_gender = tech_gender;
 		this.tech_status = tech_status;
 		this.tech_classification = tech_classification;
+		this.tech_department = tech_department;
 		this.isavailable = isavailable;
 		this.requests = requests;
 		this.purpose = purpose;
@@ -109,6 +112,14 @@ public class TechnicianEntity {
 
 	public void setTech_classification(String tech_classification) {
 		this.tech_classification = tech_classification;
+	}
+
+	public String getTech_department() {
+		return tech_department;
+	}
+
+	public void setTech_department(String tech_department) {
+		this.tech_department = tech_department;
 	}
 
 	public boolean isIsavailable() {
