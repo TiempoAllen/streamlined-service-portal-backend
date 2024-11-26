@@ -109,15 +109,6 @@ public class RequestService {
 	}
 
        
-    
-
-    public RequestEntity assignTechnicianToRequest(Long request_id, Long tech_id, String scheduledStartDate,
-            String scheduledEndDate) {
-        RequestEntity request = rrepo.findById(request_id.intValue())
-                .orElseThrow(() -> new NoSuchElementException("Request " + request_id + " does not exist!"));
-
-        TechnicianEntity technician = trepo.findById(tech_id.longValue())
-                .orElseThrow(() -> new NoSuchElementException("Technician " + tech_id + " does not exist!"));
 
 
 	public RequestEntity markRequestAsViewed(int request_id) {
