@@ -60,6 +60,9 @@ public class RequestEntity {
     @Column(name = "denial_reason", nullable = true)
     private String denialReason;
 
+	@Column(name = "is_opened", nullable = false)
+    private boolean isOpened = false; // New field with default value
+
     private String errorMessage;
 
     @ManyToOne
@@ -77,7 +80,7 @@ public class RequestEntity {
 	public RequestEntity(Long request_id, String title, String description, String datetime, String status,
 			String request_technician, String request_location,  Long user_id, String user_firstname,
 			String user_lastname, String scheduledDate, String preferredDate, String attachment, String urgency_level, String denialReason,
-			String errorMessage, TechnicianEntity technician, Long technicianId) {
+			String errorMessage, TechnicianEntity technician, Long technicianId, boolean isOpened) {
 		super();
 		this.request_id = request_id;
 		this.title = title;
@@ -97,7 +100,15 @@ public class RequestEntity {
 		this.errorMessage = errorMessage;
 		this.technician = technician;
 		this.technicianId = technicianId;
+		this.isOpened =  isOpened;
 	}
+	public boolean getIsOpened() {
+        return isOpened;
+    }
+
+    public void setIsOpened(boolean isOpened) {
+        this.isOpened = isOpened;
+    }
 
 	public Long getRequest_id() {
 		return request_id;

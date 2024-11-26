@@ -5,12 +5,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -166,6 +168,13 @@ public ResponseEntity<RequestEntity> updateRequest(
 	    return rserv.updateStatus(request_id, newRequestStatus);
 	}
 
+    @RequestMapping("/markViewed/{request_id}")
+public ResponseEntity<RequestEntity> markRequestAsViewed(@PathVariable int request_id) {
+    RequestEntity updatedRequest = rserv.markRequestAsViewed(request_id);
+    return new ResponseEntity<>(updatedRequest, HttpStatus.OK);
+}
+
+
 
 
 	// @PostMapping("/assignTechnician")
@@ -243,5 +252,8 @@ public ResponseEntity<RequestEntity> updateRequest(
         String result = rserv.deleteAllRequests();
         return ResponseEntity.ok(result);
     }
+
+
+    
 
 }

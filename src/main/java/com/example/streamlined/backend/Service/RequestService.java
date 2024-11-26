@@ -1,5 +1,6 @@
 package com.example.streamlined.backend.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -28,6 +29,7 @@ public class RequestService {
 
 	@Autowired
 	NotificationService nserv;
+
 
 	public RequestEntity addRequest(RequestEntity request) {
 	    // Fetch the user who made the request
@@ -81,6 +83,7 @@ public class RequestService {
 	        request = rrepo.findById(request_id).get();
 
 	        request.setStatus(newRequestStatus.getStatus());
+		
 
 	        if ("Approved".equals(newRequestStatus.getStatus())) {
 	            nserv.addNotification("Your request (ID: " + request_id + ") has been approved.", request.getUser_id(), "User");
@@ -90,12 +93,47 @@ public class RequestService {
 	        } else if ("Done".equals(newRequestStatus.getStatus())) {
 	            nserv.addNotification("Your request (ID: " + request_id + ") is done.", request.getUser_id(), "User");
 	        }
+	
 	    } catch(NoSuchElementException ex) {
 	        throw new NoSuchElementException("Request " + request_id + " does not exist!");
 	    } finally {
 	        return rrepo.save(request);
 	    }
 	}
+
+
+	public RequestEntity markRequestAsViewed(int request_id) {
+		try {
+			// Find the request by its ID
+			RequestEntity request = rrepo.findById(request_id)
+				.orElseThrow(() -> new NoSuchElementException("Request " + request_id + " does not exist!"));
+	
+			// Check if the request is already viewed
+			if (!request.getIsOpened()) {
+				// Mark the request as opened
+				request.setIsOpened(true);
+	
+				// Notify the user that their request has been viewed
+				nserv.addNotification(
+					"Your request (ID: " + request_id + ") has been viewed.",
+					request.getUser_id(),
+					"User"
+				);
+	
+				// Save the updated request
+				request = rrepo.save(request);
+			}
+	
+			return request;
+	
+		} catch (NoSuchElementException ex) {
+			// Handle case where the request is not found
+			throw new NoSuchElementException("Request " + request_id + " does not exist!");
+		}
+	}
+	
+	
+	
 
 
 

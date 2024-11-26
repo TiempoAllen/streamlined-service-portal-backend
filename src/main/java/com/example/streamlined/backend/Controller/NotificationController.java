@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.streamlined.backend.Entity.NotificationEntity;
 import com.example.streamlined.backend.Service.NotificationService;
+import com.example.streamlined.backend.Service.RequestService;
 
 @RestController
 @RequestMapping("/notifications")
@@ -20,6 +21,9 @@ public class NotificationController {
 
     @Autowired
     NotificationService notificationService;
+
+     @Autowired
+    RequestService requestService; 
 
     @CrossOrigin(origins = {
         "http://localhost:5173",  // Development environment
@@ -35,4 +39,6 @@ public class NotificationController {
     public void markAsRead(@PathVariable Long notificationId) {
         notificationService.markNotificationAsRead(notificationId);
     }
+
+   
 }
