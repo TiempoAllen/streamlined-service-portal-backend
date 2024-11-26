@@ -242,14 +242,6 @@ public class RequestEntity {
         this.denialReason = denialReason;
     }
 
-    public Boolean getIsOpened() {
-        return isOpened;
-    }
-
-    public void setIsOpened(Boolean isOpened) {
-        this.isOpened = isOpened;
-    }
-
     public String getErrorMessage() {
         return errorMessage;
     }
