@@ -11,3 +11,4 @@ import com.example.streamlined.backend.Entity.NotificationEntity;
 public interface NotificationRepository extends JpaRepository<NotificationEntity, Long> {
 	List<NotificationEntity> findByRecipientId(Long recipientId);
 }
+

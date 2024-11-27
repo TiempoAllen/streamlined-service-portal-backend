@@ -1,7 +1,9 @@
 package com.example.streamlined.backend.Service;
 
+import java.util.HashMap;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -164,37 +166,37 @@ public class RequestService {
 
 	public RequestEntity assignTechnicianToRequest(Long request_id, Long tech_id, String scheduledStartDate,
 	String scheduledEndDate) {
-RequestEntity request = rrepo.findById(request_id.intValue())
-		.orElseThrow(() -> new NoSuchElementException("Request " + request_id + " does not exist!"));
+	RequestEntity request = rrepo.findById(request_id.intValue())
+			.orElseThrow(() -> new NoSuchElementException("Request " + request_id + " does not exist!"));
 
-TechnicianEntity technician = trepo.findById(tech_id.longValue())
-		.orElseThrow(() -> new NoSuchElementException("Technician " + tech_id + " does not exist!"));
+	TechnicianEntity technician = trepo.findById(tech_id.longValue())
+			.orElseThrow(() -> new NoSuchElementException("Technician " + tech_id + " does not exist!"));
 
-// Check for conflicts with existing requests for the technician on the same scheduled date
-// for (RequestEntity existingRequest : technician.getRequests()) {
-//     if (scheduledStartDate.equals(existingRequest.getScheduledStartDate())) {
-//         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Technician is already assigned to another request on this date.");
-//     }
-// }
-boolean hasConflict = psrepo.hasConflict(tech_id, scheduledStartDate, scheduledEndDate);
-if (hasConflict) {
-	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Personnel is not available during the requested time.");
-}
+	// Check for conflicts with existing requests for the technician on the same scheduled date
+	// for (RequestEntity existingRequest : technician.getRequests()) {
+	//     if (scheduledStartDate.equals(existingRequest.getScheduledStartDate())) {
+	//         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Technician is already assigned to another request on this date.");
+	//     }
+	// }
+	boolean hasConflict = psrepo.hasConflict(tech_id, scheduledStartDate, scheduledEndDate);
+	if (hasConflict) {
+		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Personnel is not available during the requested time.");
+	}
 
-// Set the request's scheduled time and status
-request.setScheduledStartDate(scheduledStartDate);
-request.setScheduledEndDate(scheduledEndDate);
-request.setStatus("Assigned");
-nserv.addNotification("Your request has been assigned.", request.getUser_id(), "User");
+	// Set the request's scheduled time and status
+	request.setScheduledStartDate(scheduledStartDate);
+	request.setScheduledEndDate(scheduledEndDate);
+	request.setStatus("Assigned");
+	nserv.addNotification("Your request has been assigned.", request.getUser_id(), "User");
 
-rrepo.save(request);
+	rrepo.save(request);
 
-PersonnelScheduleEntity schedule = new PersonnelScheduleEntity(
-		scheduledEndDate, technician, request, null, scheduledStartDate, "Assigned");
-psrepo.save(schedule);
+	PersonnelScheduleEntity schedule = new PersonnelScheduleEntity(
+			scheduledEndDate, technician, request, null, scheduledStartDate, "Assigned");
+	psrepo.save(schedule);
 
-return request;
-}
+	return request;
+	}
 
     public RequestEntity removeTechnicianFromRequest(Long request_id) {
         RequestEntity request = rrepo.findById(request_id.intValue())
@@ -227,9 +229,23 @@ return request;
         return msg;
     }
 
-    public String deleteAllRequests() {
-        rrepo.deleteAll();
-        return "All requests have been successfully deleted!";
+
+	public Map<String, List<String>> getFeedbackHighlights(Long technicianId) {
+        List<String> positiveFeedback = rrepo.findPositiveFeedbackByTechnicianId(technicianId);
+        List<String> negativeFeedback = rrepo.findNegativeFeedbackByTechnicianId(technicianId);
+
+        Map<String, List<String>> feedbackHighlights = new HashMap<>();
+        feedbackHighlights.put("positive", positiveFeedback);
+        feedbackHighlights.put("negative", negativeFeedback);
+
+        return feedbackHighlights;
     }
 
+
+
+	public String deleteAllRequests() {
+		rrepo.deleteAll();
+		return "All requests have been successfully deleted!";
+	}
+  
 }
