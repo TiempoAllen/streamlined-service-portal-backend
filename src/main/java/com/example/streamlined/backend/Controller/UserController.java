@@ -27,7 +27,7 @@ import com.example.streamlined.backend.Service.UserService;
 @RequestMapping("/user")
 @CrossOrigin(origins = {
     "http://localhost:5173",  // Development environment
-    "https://streamlined-service-portal-4amnsogyi-deployed-projects-4069a065.vercel.app" // Production environment
+    "https://streamlined-service-portal-4amnsogyi-deployed-projects-4069a065.vercel.app","https://streamlined-service-portal.vercel.app/" // Production environment
 }, allowCredentials = "true")
 public class UserController {
 	@Autowired
