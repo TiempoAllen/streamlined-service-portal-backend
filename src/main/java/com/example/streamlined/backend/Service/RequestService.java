@@ -80,51 +80,67 @@ public class RequestService {
         return rrepo.findById(request_id);
     }
 
-    @SuppressWarnings("finally")
-    public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus) {
-        RequestEntity request = new RequestEntity();
-        try {
-            request = rrepo.findById(request_id).get();
-
-            request.setStatus(newRequestStatus.getStatus());
-
-
-	        request.setStatus(newRequestStatus.getStatus());
-		
-
-	        if ("Approved".equals(newRequestStatus.getStatus())) {
-	            nserv.addNotification("Your request (ID: " + request_id + ") has been approved.", request.getUser_id(), "User");
-	        } else if ("Denied".equals(newRequestStatus.getStatus())) {
-	            request.setDenialReason(newRequestStatus.getDenialReason());
-	            nserv.addNotification("Your request (ID: " + request_id + ") has been denied. Reason: " + newRequestStatus.getDenialReason(), request.getUser_id(), "User");
-	        } else if ("Done".equals(newRequestStatus.getStatus())) {
-	            nserv.addNotification("Your request (ID: " + request_id + ") is done.", request.getUser_id(), "User");
-	        }
+	@SuppressWarnings("finally")
+	public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus) {
+		RequestEntity request = new RequestEntity();
+		try {
+			// Fetch the existing request by ID
+			request = rrepo.findById(request_id).orElseThrow(
+				() -> new NoSuchElementException("Request with ID " + request_id + " does not exist!")
+			);
 	
-	    } catch(NoSuchElementException ex) {
-	        throw new NoSuchElementException("Request " + request_id + " does not exist!");
-	    } finally {
-	        return rrepo.save(request);
-	    }
+			// Update the status
+			request.setStatus(newRequestStatus.getStatus());
+	
+			// Handle notifications based on the new status
+			String requestTitle = "\"" + request.getTitle() + "\""; // Enclose title in quotation marks
+			if ("Approved".equals(newRequestStatus.getStatus())) {
+				nserv.addNotification(
+					"Your request  " + requestTitle + " has been approved.",
+					request.getUser_id(),
+					"User"
+				);
+			} else if ("Denied".equals(newRequestStatus.getStatus())) {
+				request.setDenialReason(newRequestStatus.getDenialReason());
+				nserv.addNotification(
+					"Your request " + requestTitle + " has been denied. Reason: " + newRequestStatus.getDenialReason(),
+					request.getUser_id(),
+					"User"
+				);
+			} else if ("Done".equals(newRequestStatus.getStatus())) {
+				nserv.addNotification(
+					"Your request " + requestTitle + " is done.",
+					request.getUser_id(),
+					"User"
+				);
+			}
+	
+		} catch (NoSuchElementException ex) {
+			// Handle case where the request is not found
+			throw new NoSuchElementException("Request with ID " + request_id + " does not exist!");
+		} finally {
+			// Save and return the updated request
+			return rrepo.save(request);
+		}
 	}
+	
 
        
-
 
 	public RequestEntity markRequestAsViewed(int request_id) {
 		try {
 			// Find the request by its ID
 			RequestEntity request = rrepo.findById(request_id)
-				.orElseThrow(() -> new NoSuchElementException("Request " + request_id + " does not exist!"));
+				.orElseThrow(() -> new NoSuchElementException("Request with ID " + request_id + " does not exist!"));
 	
 			// Check if the request is already viewed
 			if (!request.getIsOpened()) {
 				// Mark the request as opened
 				request.setIsOpened(true);
 	
-				// Notify the user that their request has been viewed
+				// Notify the user that their request has been viewed, using the title
 				nserv.addNotification(
-					"Your request (ID: " + request_id + ") has been viewed.",
+					"Your request \"" + request.getTitle() + "\" has been viewed.",
 					request.getUser_id(),
 					"User"
 				);
@@ -137,10 +153,11 @@ public class RequestService {
 	
 		} catch (NoSuchElementException ex) {
 			// Handle case where the request is not found
-			throw new NoSuchElementException("Request " + request_id + " does not exist!");
+			throw new NoSuchElementException("Request with ID " + request_id + " does not exist!");
 		}
 	}
-	
+
+
 	
 	
 
