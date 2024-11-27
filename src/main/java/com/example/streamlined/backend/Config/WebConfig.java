@@ -13,7 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(
                     "http://localhost:5173",
-                    "https://cituserviceportal-gdrksvm3q-deployed-projects-4069a065.vercel.app"
+                    "https://vercel.com/deployed-projects-4069a065/streamlined-service-portal/8nZYhwxzStDNWXd2Tqg1vNzi4kpG"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders(

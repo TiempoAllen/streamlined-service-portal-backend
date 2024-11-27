@@ -16,7 +16,6 @@ import com.example.streamlined.backend.Service.RequestService;
 
 @RestController
 @RequestMapping("/notifications")
-@CrossOrigin(origins = "http://localhost:5173")
 public class NotificationController {
 
     @Autowired
@@ -27,7 +26,7 @@ public class NotificationController {
 
     @CrossOrigin(origins = {
         "http://localhost:5173",  // Development environment
-        "https://cituserviceportal-gdrksvm3q-deployed-projects-4069a065.vercel.app" // Production environment
+        "https://vercel.com/deployed-projects-4069a065/streamlined-service-portal/8nZYhwxzStDNWXd2Tqg1vNzi4kpG" // Production environment
     }, allowCredentials = "true")
     
     @GetMapping("/{userId}")
