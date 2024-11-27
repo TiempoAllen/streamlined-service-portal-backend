@@ -26,7 +26,7 @@ public class NotificationController {
 
     @CrossOrigin(origins = {
         "http://localhost:5173",  // Development environment
-        "https://streamlined-service-portal-deployed-projects-4069a065.vercel.app" // Production environment
+        "https://streamlined-service-portal-4amnsogyi-deployed-projects-4069a065.vercel.app" // Production environment
     }, allowCredentials = "true")
     
     @GetMapping("/{userId}")

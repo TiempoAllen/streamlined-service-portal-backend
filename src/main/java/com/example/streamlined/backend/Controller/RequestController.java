@@ -36,7 +36,7 @@ import com.example.streamlined.backend.Service.TechnicianService;
 @RequestMapping("/request")
 @CrossOrigin(origins = {
     "http://localhost:5173", // Development environment
-    "https://streamlined-service-portal-deployed-projects-4069a065.vercel.app" // Production environment
+    "https://streamlined-service-portal-4amnsogyi-deployed-projects-4069a065.vercel.app" // Production environment
 }, allowCredentials = "true")
 public class RequestController {
 
