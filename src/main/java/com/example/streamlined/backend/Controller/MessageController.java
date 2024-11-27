@@ -98,9 +98,9 @@ public class MessageController {
  
      // Send the message to the receiver via WebSocket
      smtemp.convertAndSendToUser(
-         message.getReceiver(), // The user ID of the receiver
-         "/queue/messages",     // The destination prefix
-         message                // The message payload
+         message.getReceiver(), 
+         "/queue/messages",     
+         message                
      );
  }
 

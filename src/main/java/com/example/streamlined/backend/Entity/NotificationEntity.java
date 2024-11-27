@@ -32,15 +32,24 @@ public class NotificationEntity {
     @Column(name = "is_read")
     private boolean isRead;
 
-	@Column(name = "rating", nullable = true)
-	private Integer rating;
+	@Column(name = "notification_type")
+	private String notificationType;
 
-	@Column(name = "user_feedback", nullable = true, length = 500)
-	private String userFeedback;
+	@Column
+	private Long request_id;
 
 	public NotificationEntity() {
+    }
 
-	}
+    // Constructor for basic notification with notification type
+    public NotificationEntity(String message, Long recipientId, String recipientRole, String notificationType) {
+        this.message = message;
+        this.recipientId = recipientId;
+        this.recipientRole = recipientRole;
+        this.notificationType = notificationType;
+        this.timestamp = new Timestamp(System.currentTimeMillis());
+        this.isRead = false;
+    }
 
 	public NotificationEntity(String message, Long recipientId, String recipientRole) {
         this.message = message;
@@ -50,69 +59,79 @@ public class NotificationEntity {
         this.isRead = false;
     }
 
+	public NotificationEntity(String message, Long recipientId, String recipientRole, Long request_id) {
+        this.message = message;
+        this.recipientId = recipientId;
+        this.recipientRole = recipientRole;
+		this.request_id = request_id;
+        this.timestamp = new Timestamp(System.currentTimeMillis());
+        this.isRead = false;
+    }
 
-	public Long getNotification_id() {
-		return notification_id;
+    public Long getNotification_id() {
+        return notification_id;
+    }
+
+    public void setNotification_id(Long notification_id) {
+        this.notification_id = notification_id;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public Long getRecipientId() {
+        return recipientId;
+    }
+
+    public void setRecipientId(Long recipientId) {
+        this.recipientId = recipientId;
+    }
+
+    public String getRecipientRole() {
+        return recipientRole;
+    }
+
+    public void setRecipientRole(String recipientRole) {
+        this.recipientRole = recipientRole;
+    }
+
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public void setRead(boolean isRead) {
+        this.isRead = isRead;
+    }
+
+
+    public String getNotificationType() {
+        return notificationType;
+    }
+
+    public void setNotificationType(String notificationType) {
+        this.notificationType = notificationType;
+    }
+
+	public Long getRequest_id() {
+		return request_id;
 	}
 
-	public void setNotification_id(Long notification_id) {
-		this.notification_id = notification_id;
+	public void setRequest_id(Long request_id) {
+		this.request_id = request_id;
 	}
 
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	public Long getRecipientId() {
-		return recipientId;
-	}
-
-	public void setRecipientId(Long recipientId) {
-		this.recipientId = recipientId;
-	}
-
-	public String getRecipientRole() {
-		return recipientRole;
-	}
-
-	public void setRecipientRole(String recipientRole) {
-		this.recipientRole = recipientRole;
-	}
-
-	public Timestamp getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(Timestamp timestamp) {
-		this.timestamp = timestamp;
-	}
-
-	public boolean isRead() {
-		return isRead;
-	}
-
-	public void setRead(boolean isRead) {
-		this.isRead = isRead;
-	}
-
-	public Integer getRating() {
-		return rating;
-	}
 	
-	public void setRating(Integer rating) {
-		this.rating = rating;
-	}
-	
-	public String getUserFeedback() {
-		return userFeedback;
-	}
-	
-	public void setUserFeedback(String userFeedback) {
-		this.userFeedback = userFeedback;
-	}
-
 }

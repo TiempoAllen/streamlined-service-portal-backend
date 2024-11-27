@@ -1,6 +1,8 @@
 package com.example.streamlined.backend.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -129,6 +131,16 @@ public class RequestService {
     return request;
 }
 
+	public Map<String, List<String>> getFeedbackHighlights(Long technicianId) {
+        List<String> positiveFeedback = rrepo.findPositiveFeedbackByTechnicianId(technicianId);
+        List<String> negativeFeedback = rrepo.findNegativeFeedbackByTechnicianId(technicianId);
+
+        Map<String, List<String>> feedbackHighlights = new HashMap<>();
+        feedbackHighlights.put("positive", positiveFeedback);
+        feedbackHighlights.put("negative", negativeFeedback);
+
+        return feedbackHighlights;
+    }
 
 
 	public RequestEntity removeTechnicianFromRequest(Long request_id) {

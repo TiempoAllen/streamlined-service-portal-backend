@@ -9,13 +9,6 @@ import com.example.streamlined.backend.Entity.TechnicianEntity;
 //import com.example.streamlined.backend.Entity.UserEntity;
 
 public interface TechnicianRepository extends JpaRepository <TechnicianEntity, Long>{
-
     @SuppressWarnings("null")
     Optional<TechnicianEntity> findById(Long tid);
-
-    
-
-   
-    
-
 }

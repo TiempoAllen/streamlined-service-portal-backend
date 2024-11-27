@@ -46,10 +46,10 @@ public class RequestEntity {
     private String user_lastname;
 
     @Column(name = "scheduled_date")
-    private String scheduledDate; // Changed to String
+    private String scheduledDate; 
 
     @Column(name = "preferred_date")
-    private String preferredDate; // Changed to String
+    private String preferredDate; 
 
     @Column(name = "attachment")
 	private String attachment;
@@ -61,7 +61,7 @@ public class RequestEntity {
     private String denialReason;
 
     @Column(name = "is_opened", nullable = false)
-    private Boolean isOpened = false; // Default value is set to false
+    private Boolean isOpened = false;	
 
     private String errorMessage;
 
@@ -81,7 +81,7 @@ public class RequestEntity {
 
 	public RequestEntity() {
 		super();
-		this.isOpened = false; // Default value for no-argument constructor
+		this.isOpened = false;
 	}
 
 	public RequestEntity(Long request_id, String title, String description, String datetime, String status,
@@ -110,6 +110,34 @@ public class RequestEntity {
 		this.technicianId = technicianId;
 	}
 
+	public RequestEntity(Long request_id, String title, String description, String datetime, String status,
+			String request_technician, String request_location, Long user_id, String user_firstname,
+			String user_lastname, String scheduledDate, String preferredDate, String attachment, String urgency_level, 
+			String denialReason, Boolean isOpened, String errorMessage, TechnicianEntity technician, Long technicianId, Integer rating, 
+			String userFeedback) {
+		super();
+		this.request_id = request_id;
+		this.title = title;
+		this.description = description;
+		this.datetime = datetime;
+		this.status = status;
+		this.request_technician = request_technician;
+		this.request_location = request_location;
+		this.user_id = user_id;
+		this.user_firstname = user_firstname;
+		this.user_lastname = user_lastname;
+		this.scheduledDate = scheduledDate;
+		this.preferredDate = preferredDate;
+		this.attachment = attachment;
+		this.urgency_level = urgency_level;
+		this.denialReason = denialReason;
+		this.isOpened = isOpened;
+		this.errorMessage = errorMessage;
+		this.technician = technician;
+		this.technicianId = technicianId;
+		this.rating = rating;
+		this.userFeedback = userFeedback;
+	}
 	// Getter and Setter for isOpened
 	public Boolean getIsOpened() {
 		return isOpened;
@@ -263,7 +291,6 @@ public class RequestEntity {
 		this.technicianId = technicianId;
 	}
 
-<<<<<<< HEAD
 	public Integer getRating() {
 		return rating;
 	}
@@ -281,6 +308,4 @@ public class RequestEntity {
 	}
 
 
-=======
->>>>>>> master
 }

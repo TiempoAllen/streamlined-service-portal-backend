@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.streamlined.backend.Entity.RequestEntity;
+import com.example.streamlined.backend.Repository.RequestRepository;
 import com.example.streamlined.backend.Service.RequestService;
 import com.example.streamlined.backend.Service.TechnicianService;
 
@@ -43,6 +45,11 @@ public class RequestController {
 
 	@Autowired
 	TechnicianService tserv;
+
+    
+
+    @Autowired
+    RequestRepository requestRepository;
 	/*@PostMapping("/add")
     public RequestEntity addRequest(@RequestBody RequestEntity request) {
         return rserv.addRequest(request);
@@ -162,11 +169,34 @@ public ResponseEntity<RequestEntity> updateRequest(
 		return rserv.getAllRequests();
 	}
 
-	@GetMapping("/{request_id}")
-    public Optional<RequestEntity> getRequestById(@PathVariable int request_id) {
-        Optional<RequestEntity> request = rserv.getRequestById(request_id);
-        return request;
-    }
+        @GetMapping("/{request_id}")
+        public Optional<RequestEntity> getRequestById(@PathVariable int request_id) {
+            Optional<RequestEntity> request = rserv.getRequestById(request_id);
+            return request;
+        }
+
+        @GetMapping("/technician/{request_id}")
+        public Long getTechnicianId(@PathVariable int request_id) {
+            RequestEntity request = requestRepository.findById(request_id)
+                .orElseThrow(() -> new RuntimeException("Request not found with id: " + request_id));
+            return request.getTechnicianId();  
+        }
+
+        @GetMapping("/average/{technicianId}")
+        public ResponseEntity<Double> getAverageRating(@PathVariable Long technicianId) {
+            Double averageRating = requestRepository.findAverageRatingByTechnicianId(technicianId);
+            if (averageRating != null) {
+                return ResponseEntity.ok(averageRating);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(0.0); // Default to 0 if no ratings
+            }
+        }
+
+        @GetMapping("/highlights/{technicianId}")
+        public ResponseEntity<Map<String, List<String>>> getFeedbackHighlights(@PathVariable Long technicianId) {
+            Map<String, List<String>> feedbackHighlights = rserv.getFeedbackHighlights(technicianId);
+            return ResponseEntity.ok(feedbackHighlights);
+        }
 
 	@PutMapping("/updateStatus")
     public RequestEntity updateStatus(@RequestParam int request_id, @RequestBody RequestEntity newRequestStatus) {
@@ -192,10 +222,19 @@ public ResponseEntity<String> assignTechnicianToRequest(
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                              .body("An error occurred while assigning the technician.");
     }
+
 }
 
 
-
+@PutMapping("/submit-evaluation/{request_id}")
+public RequestEntity submitEvaluation(
+        @PathVariable int request_id,
+        @RequestBody RequestEntity requestEntity) {
+    RequestEntity request = requestRepository.findById(request_id).get();
+    request.setRating(requestEntity.getRating());
+    request.setUserFeedback(requestEntity.getUserFeedback());
+    return requestRepository.save(request);
+}
 
 
 	// @PostMapping("/assignTechnician")

@@ -3,7 +3,10 @@ package com.example.streamlined.backend.Controller;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import javax.management.Notification;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,18 +28,17 @@ public class NotificationController {
     @Autowired
     NotificationService notificationService;
 
-<<<<<<< HEAD
     @Autowired
     RequestRepository requestRepository;
 
-    @CrossOrigin(origins = "http://localhost:3000")
-=======
+
+
+
     @CrossOrigin(origins = {
         "http://localhost:5173",  // Development environment
         "https://cituserviceportal-gdrksvm3q-deployed-projects-4069a065.vercel.app" // Production environment
     }, allowCredentials = "true")
     
->>>>>>> master
     @GetMapping("/{userId}")
     public List<NotificationEntity> getNotifications(@PathVariable Long userId) {
         return notificationService.getNotificationsForUser(userId);
@@ -52,15 +54,31 @@ public class NotificationController {
     notificationService.notifyUserForEvaluation(request_id, userId);
     }
 
-     @PutMapping("/{request_id}")
-    public RequestEntity submitEvaluation(
-            int request_id,
-            @RequestParam Integer rating,
-            @RequestParam String feedback) {
-        RequestEntity request = requestRepository.findById(request_id).get();
-        request.setRating(rating);
-        request.setUserFeedback(feedback);
-        return requestRepository.save(request);
+  
+
+    @PutMapping("/update-status/{request_id}")
+    public ResponseEntity<RequestEntity> updateRequestStatus(
+            @PathVariable int request_id, 
+            @RequestParam String status) {
+
+        RequestEntity request = requestRepository.findById(request_id)
+                .orElseThrow(() -> new RuntimeException("Request not found with ID: " + request_id));
+        
+      
+        request.setStatus(status);
+    
+        if ("COMPLETED".equalsIgnoreCase(status)) {
+        
+            notificationService.notifyUserForEvaluation((long) request_id, request.getUser_id());
+            
+
+        }
+    
+        requestRepository.save(request);
+    
+        return ResponseEntity.ok(request);
     }
+    
+
 
 }

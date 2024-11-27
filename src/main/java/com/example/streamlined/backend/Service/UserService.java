@@ -58,19 +58,17 @@ public class UserService {
         }
     }
 
-<<<<<<< HEAD
     public UserEntity updateUser(UserEntity user) {
         return urepo.save(user);
     }
 
-	public UserEntity insertUser(UserEntity user) {
-		String email = user.getEmail();
-	    if (urepo.existsByEmail(email)) {
-	        throw new IllegalArgumentException("Email already exists");
-	    }
-	    return urepo.save(user);
-	}
-=======
+	// public UserEntity insertUser(UserEntity user) {
+	// 	String email = user.getEmail();
+	//     if (urepo.existsByEmail(email)) {
+	//         throw new IllegalArgumentException("Email already exists");
+	//     }
+	//     return urepo.save(user);
+	// }
     public UserEntity insertUser(UserEntity user) {
         String email = user.getEmail();
         if (urepo.existsByEmail(email)) {
@@ -81,7 +79,6 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return urepo.save(user);
     }
->>>>>>> master
 
 	public List<UserEntity> getAllUsers() {
 		return urepo.findAll();
@@ -91,15 +88,6 @@ public class UserService {
 		return urepo.findById(user_id);
 	}
 
-<<<<<<< HEAD
-	@SuppressWarnings("finally")
-    public UserEntity updateUser(int user_id, UserEntity newUserDetails) {
-    try {
-        // Find the existing user by ID
-        UserEntity existingUser = urepo.findById(user_id).orElseThrow(
-            () -> new NoSuchElementException("User " + user_id + " does not exist!")
-        );
-=======
 	//@SuppressWarnings("finally")
     public UserEntity updateUser(int user_id, UserEntity newUserDetails) {
         try {
@@ -107,7 +95,6 @@ public class UserService {
             UserEntity existingUser = urepo.findById(user_id).orElseThrow(
                 () -> new NoSuchElementException("User " + user_id + " does not exist!")
             );
->>>>>>> master
 
             // Set all new user details
             existingUser.setUsername(newUserDetails.getUsername());
