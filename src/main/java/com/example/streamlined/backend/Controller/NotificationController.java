@@ -19,10 +19,10 @@ import com.example.streamlined.backend.Entity.NotificationEntity;
 import com.example.streamlined.backend.Entity.RequestEntity;
 import com.example.streamlined.backend.Repository.RequestRepository;
 import com.example.streamlined.backend.Service.NotificationService;
+import com.example.streamlined.backend.Service.RequestService;
 
 @RestController
 @RequestMapping("/notifications")
-@CrossOrigin(origins = "http://localhost:5173")
 public class NotificationController {
 
     @Autowired
@@ -33,10 +33,12 @@ public class NotificationController {
 
 
 
+     @Autowired
+    RequestService requestService; 
 
     @CrossOrigin(origins = {
         "http://localhost:5173",  // Development environment
-        "https://cituserviceportal-gdrksvm3q-deployed-projects-4069a065.vercel.app" // Production environment
+        "https://streamlined-service-portal-4amnsogyi-deployed-projects-4069a065.vercel.app","https://streamlined-service-portal.vercel.app/" // Production environment
     }, allowCredentials = "true")
     
     @GetMapping("/{userId}")
@@ -81,4 +83,5 @@ public class NotificationController {
     
 
 
+   
 }

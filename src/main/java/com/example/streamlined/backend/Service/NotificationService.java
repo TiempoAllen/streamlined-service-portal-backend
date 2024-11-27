@@ -11,6 +11,7 @@ import com.example.streamlined.backend.Entity.NotificationEntity;
 import com.example.streamlined.backend.Entity.RequestEntity;
 import com.example.streamlined.backend.Repository.NotificationRepository;
 import com.example.streamlined.backend.Repository.RequestRepository;
+import com.example.streamlined.backend.Entity.RequestEntity;
 
 @Service
 public class NotificationService {
@@ -20,6 +21,9 @@ public class NotificationService {
 
     @Autowired
     RequestRepository requestRepository;
+    RequestRepository rrepo;
+
+    
 
     public NotificationEntity addNotification(String message, Long recipientId, String recipientRole) {
         NotificationEntity notification = new NotificationEntity(message, recipientId, recipientRole);
