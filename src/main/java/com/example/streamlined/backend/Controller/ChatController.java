@@ -32,7 +32,10 @@ import com.example.streamlined.backend.Service.ChatService;
 
 @RestController
 @RequestMapping("/chat")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {
+    "http://localhost:5173", "http://localhost:3000", // Development environment
+    "https://streamlined-service-portal-4amnsogyi-deployed-projects-4069a065.vercel.app","https://streamlined-service-portal.vercel.app/" // Production environment
+}, allowCredentials = "true")
 public class ChatController {
     @Autowired
     private SimpMessagingTemplate smtemp;

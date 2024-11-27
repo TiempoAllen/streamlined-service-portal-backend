@@ -320,10 +320,6 @@ public class RequestEntity {
         this.technicianId = technicianId;
     }
 
-<<<<<<< HEAD
-    
-
-=======
 	public Integer getRating() {
 		return rating;
 	}
@@ -339,7 +335,6 @@ public class RequestEntity {
 	public void setUserFeedback(String userFeedback) {
 		this.userFeedback = userFeedback;
 	}
->>>>>>> Justine
 
 
 }
