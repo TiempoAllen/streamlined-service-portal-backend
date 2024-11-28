@@ -1,18 +1,14 @@
 package com.example.streamlined.backend.Service;
 
 import java.util.HashMap;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import com.example.streamlined.backend.Entity.PersonnelScheduleEntity;
 import com.example.streamlined.backend.Entity.RequestEntity;
 import com.example.streamlined.backend.Entity.TechnicianEntity;
 import com.example.streamlined.backend.Entity.UserEntity;
@@ -36,9 +32,8 @@ public class RequestService {
     @Autowired
     NotificationService nserv;
 
-	@Autowired
+    @Autowired
     PersonnelSchedule psrepo;
-
 
     public RequestEntity addRequest(RequestEntity request) {
         // Fetch the user who made the request
@@ -82,121 +77,103 @@ public class RequestService {
         return rrepo.findById(request_id);
     }
 
-	@SuppressWarnings("finally")
-	public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus) {
-		RequestEntity request = new RequestEntity();
-		try {
-			// Fetch the existing request by ID
-			request = rrepo.findById(request_id).orElseThrow(
-				() -> new NoSuchElementException("Request with ID " + request_id + " does not exist!")
-			);
-	
-			// Update the status
-			request.setStatus(newRequestStatus.getStatus());
-	
-			// Handle notifications based on the new status
-			String requestTitle = "\"" + request.getTitle() + "\""; // Enclose title in quotation marks
-			if ("Approved".equals(newRequestStatus.getStatus())) {
-				nserv.addNotification(
-					"Your request  " + requestTitle + " has been approved.",
-					request.getUser_id(),
-					"User"
-				);
-			} else if ("Denied".equals(newRequestStatus.getStatus())) {
-				request.setDenialReason(newRequestStatus.getDenialReason());
-				nserv.addNotification(
-					"Your request " + requestTitle + " has been denied. Reason: " + newRequestStatus.getDenialReason(),
-					request.getUser_id(),
-					"User"
-				);
-			} else if ("Done".equals(newRequestStatus.getStatus())) {
-				nserv.addNotification(
-					"Your request " + requestTitle + " is done.",
-					request.getUser_id(),
-					"User"
-				);
-			}
-	
-		} catch (NoSuchElementException ex) {
-			// Handle case where the request is not found
-			throw new NoSuchElementException("Request with ID " + request_id + " does not exist!");
-		} finally {
-			// Save and return the updated request
-			return rrepo.save(request);
-		}
-	}
-	
+    @SuppressWarnings("finally")
+    public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus) {
+        RequestEntity request = new RequestEntity();
+        try {
+            // Fetch the existing request by ID
+            request = rrepo.findById(request_id).orElseThrow(
+                    () -> new NoSuchElementException("Request with ID " + request_id + " does not exist!")
+            );
 
-       
+            // Update the status
+            request.setStatus(newRequestStatus.getStatus());
 
-	public RequestEntity markRequestAsViewed(int request_id) {
-		try {
-			// Find the request by its ID
-			RequestEntity request = rrepo.findById(request_id)
-				.orElseThrow(() -> new NoSuchElementException("Request with ID " + request_id + " does not exist!"));
-	
-			// Check if the request is already viewed
-			if (!request.getIsOpened()) {
-				// Mark the request as opened
-				request.setIsOpened(true);
-	
-				// Notify the user that their request has been viewed, using the title
-				nserv.addNotification(
-					"Your request \"" + request.getTitle() + "\" has been viewed.",
-					request.getUser_id(),
-					"User"
-				);
-	
-				// Save the updated request
-				request = rrepo.save(request);
-			}
-	
-			return request;
-	
-		} catch (NoSuchElementException ex) {
-			// Handle case where the request is not found
-			throw new NoSuchElementException("Request with ID " + request_id + " does not exist!");
-		}
-	}
+            // Handle notifications based on the new status
+            String requestTitle = "\"" + request.getTitle() + "\""; // Enclose title in quotation marks
+            if ("Approved".equals(newRequestStatus.getStatus())) {
+                nserv.addNotification(
+                        "Your request  " + requestTitle + " has been approved.",
+                        request.getUser_id(),
+                        "User"
+                );
+            } else if ("Denied".equals(newRequestStatus.getStatus())) {
+                request.setDenialReason(newRequestStatus.getDenialReason());
+                nserv.addNotification(
+                        "Your request " + requestTitle + " has been denied. Reason: " + newRequestStatus.getDenialReason(),
+                        request.getUser_id(),
+                        "User"
+                );
+            } else if ("Done".equals(newRequestStatus.getStatus())) {
+                nserv.addNotification(
+                        "Your request " + requestTitle + " is done.",
+                        request.getUser_id(),
+                        "User"
+                );
+            }
 
+        } catch (NoSuchElementException ex) {
+            // Handle case where the request is not found
+            throw new NoSuchElementException("Request with ID " + request_id + " does not exist!");
+        } finally {
+            // Save and return the updated request
+            return rrepo.save(request);
+        }
+    }
 
-	
-	
+    public RequestEntity markRequestAsViewed(int request_id) {
+        try {
+            // Find the request by its ID
+            RequestEntity request = rrepo.findById(request_id)
+                    .orElseThrow(() -> new NoSuchElementException("Request with ID " + request_id + " does not exist!"));
 
+            // Check if the request is already viewed
+            if (!request.getIsOpened()) {
+                // Mark the request as opened
+                request.setIsOpened(true);
 
-	public RequestEntity assignTechnicianToRequest(Long request_id, Long tech_id, String scheduledStartDate,
-	String scheduledEndDate) {
-	RequestEntity request = rrepo.findById(request_id.intValue())
-			.orElseThrow(() -> new NoSuchElementException("Request " + request_id + " does not exist!"));
+                // Notify the user that their request has been viewed, using the title
+                nserv.addNotification(
+                        "Your request \"" + request.getTitle() + "\" has been viewed.",
+                        request.getUser_id(),
+                        "User"
+                );
 
-	TechnicianEntity technician = trepo.findById(tech_id.longValue())
-			.orElseThrow(() -> new NoSuchElementException("Technician " + tech_id + " does not exist!"));
+                // Save the updated request
+                request = rrepo.save(request);
+            }
 
-	// Check for conflicts with existing requests for the technician on the same scheduled date
-	// for (RequestEntity existingRequest : technician.getRequests()) {
-	//     if (scheduledStartDate.equals(existingRequest.getScheduledStartDate())) {
-	//         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Technician is already assigned to another request on this date.");
-	//     }
-	// }
-	boolean hasConflict = psrepo.hasConflict(tech_id, scheduledStartDate, scheduledEndDate);
-	if (hasConflict) {
-		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Personnel is not available during the requested time.");
-	}
+            return request;
 
-	// Set the request's scheduled time and status
-	request.setScheduledStartDate(scheduledStartDate);
-	request.setScheduledEndDate(scheduledEndDate);
-	request.setStatus("Assigned");
-	nserv.addNotification("Your request has been assigned.", request.getUser_id(), "User");
+        } catch (NoSuchElementException ex) {
+            // Handle case where the request is not found
+            throw new NoSuchElementException("Request with ID " + request_id + " does not exist!");
+        }
+    }
 
-	rrepo.save(request);
+    public RequestEntity assignTechnicianToRequest(Long request_id, Long tech_id, String scheduledStartDate) {
+        RequestEntity request = rrepo.findById(request_id.intValue())
+                .orElseThrow(() -> new NoSuchElementException("Request " + request_id + " does not exist!"));
 
-	PersonnelScheduleEntity schedule = new PersonnelScheduleEntity(
-			scheduledEndDate, technician, request, null, scheduledStartDate, "Assigned");
-	psrepo.save(schedule);
+        TechnicianEntity technician = trepo.findById(tech_id.longValue())
+                .orElseThrow(() -> new NoSuchElementException("Technician " + tech_id + " does not exist!"));
+        // boolean hasConflict = psrepo.hasConflict(tech_id, scheduledStartDate);
+        // if (hasConflict) {
+        // 	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Personnel is not available during the requested time.");
+        // }
 
-	return request;
-	}
+        // Set the request's scheduled time and status
+        request.setScheduledStartDate(scheduledStartDate);
+        request.setStatus("In Progress");
+        nserv.addNotification("Your request has been assigned.", request.getUser_id(), "User");
+
+        rrepo.save(request);
+
+        // PersonnelScheduleEntity schedule = new PersonnelScheduleEntity(
+        // 		scheduledEndDate, technician, request, null, scheduledStartDate, "Assigned");
+        // psrepo.save(schedule);
+        return request;
+    }
 
     public RequestEntity removeTechnicianFromRequest(Long request_id) {
         RequestEntity request = rrepo.findById(request_id.intValue())
@@ -229,8 +206,7 @@ public class RequestService {
         return msg;
     }
 
-
-	public Map<String, List<String>> getFeedbackHighlights(Long technicianId) {
+    public Map<String, List<String>> getFeedbackHighlights(Long technicianId) {
         List<String> positiveFeedback = rrepo.findPositiveFeedbackByTechnicianId(technicianId);
         List<String> negativeFeedback = rrepo.findNegativeFeedbackByTechnicianId(technicianId);
 
@@ -241,11 +217,9 @@ public class RequestService {
         return feedbackHighlights;
     }
 
+    public String deleteAllRequests() {
+        rrepo.deleteAll();
+        return "All requests have been successfully deleted!";
+    }
 
-
-	public String deleteAllRequests() {
-		rrepo.deleteAll();
-		return "All requests have been successfully deleted!";
-	}
-  
 }
