@@ -45,6 +45,11 @@ public class RequestEntity {
     @Column(name = "user_lastname")
     private String user_lastname;
 
+    @Column(name = "scheduled_date")
+    private String scheduledDate; 
+
+    @Column(name = "preferred_date")
+    private String preferredDate; 
     @Column(name = "scheduled_start_date")
     private String scheduledStartDate;
 
@@ -67,7 +72,7 @@ public class RequestEntity {
     private String denialReason;
 
     @Column(name = "is_opened", nullable = false)
-    private Boolean isOpened = false; // Default value is set to false
+    private Boolean isOpened = false;	
 
     private String errorMessage;
 
@@ -83,38 +88,54 @@ public class RequestEntity {
     @Column(name = "is_resubmitted", nullable = true)
     private boolean isResubmitted = false; // Default value
 
+    @Column(name = "rating", nullable = true)
+	private Integer rating; 
+
+	@Column(name = "user_feedback", nullable = true, length = 500)
+	private String userFeedback; 
+
+
 
 	
-    public RequestEntity() {
-    }
+	public RequestEntity() {
+		super();
+		this.isOpened = false;
+	}
+   
+
 
 	public RequestEntity(Long request_id, String title, String description, String datetime, String status,
-			String request_technician, String request_location,  Long user_id, String user_firstname,
-			String user_lastname,  String scheduledEndDate, String scheduledStartDate, String attachment, String urgency_level, String denialReason,
-			String errorMessage, TechnicianEntity technician, Long technicianId, boolean isOpened, String preferredEndDate, String preferredStartDate, boolean isResubmitted) {
+			String request_technician, String request_location, Long user_id, String user_firstname,
+			String user_lastname, String scheduledDate, String preferredDate, String attachment, String urgency_level, 
+			String denialReason, Boolean isOpened, String errorMessage, TechnicianEntity technician, Long technicianId, Integer rating, 
+			String userFeedback, boolean isResubmitted) {
 		super();
 		this.request_id = request_id;
 		this.title = title;
 		this.description = description;
 		this.datetime = datetime;
 		this.status = status;
-		this.preferredEndDate = preferredEndDate;
-        this.preferredStartDate = preferredStartDate;
 		this.request_technician = request_technician;
 		this.request_location = request_location;
 		this.user_id = user_id;
 		this.user_firstname = user_firstname;
 		this.user_lastname = user_lastname;
-		this.scheduledEndDate = scheduledEndDate;
-        this.scheduledStartDate = scheduledStartDate;
+		this.scheduledDate = scheduledDate;
+		this.preferredDate = preferredDate;
 		this.attachment = attachment;
 		this.urgency_level = urgency_level;
 		this.denialReason = denialReason;
+		this.isOpened = isOpened;
 		this.errorMessage = errorMessage;
 		this.technician = technician;
 		this.technicianId = technicianId;
-		this.isOpened =  isOpened;
+		this.rating = rating;
+		this.userFeedback = userFeedback;
         this.isResubmitted = isResubmitted;
+	}
+	// Getter and Setter for isOpened
+	public Boolean getIsOpened() {
+		return isOpened;
 	}
 
     public boolean GetIsResubmitted() {
@@ -124,11 +145,6 @@ public class RequestEntity {
     public void setResubmitted(boolean isResubmitted) {
         this.isResubmitted = isResubmitted;
     }
-
-	public boolean getIsOpened() {
-        return isOpened;
-    }
-
     public void setIsOpened(boolean isOpened) {
         this.isOpened = isOpened;
     }
@@ -293,10 +309,21 @@ public class RequestEntity {
         this.technicianId = technicianId;
     }
 
+	public Integer getRating() {
+		return rating;
+	}
 	
-
-    
-
+	public void setRating(Integer rating) {
+		this.rating = rating;
+	}
+	
+	public String getUserFeedback() {
+		return userFeedback;
+	}
+	
+	public void setUserFeedback(String userFeedback) {
+		this.userFeedback = userFeedback;
+	}
 
 
 }
