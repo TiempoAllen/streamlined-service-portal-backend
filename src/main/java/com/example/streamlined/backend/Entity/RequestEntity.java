@@ -79,13 +79,19 @@ public class RequestEntity {
     @Column(name = "technician_id")
     private Long technicianId;
 
+
+    @Column(name = "is_resubmitted", nullable = true)
+    private boolean isResubmitted = false; // Default value
+
+
+	
     public RequestEntity() {
     }
 
 	public RequestEntity(Long request_id, String title, String description, String datetime, String status,
 			String request_technician, String request_location,  Long user_id, String user_firstname,
 			String user_lastname,  String scheduledEndDate, String scheduledStartDate, String attachment, String urgency_level, String denialReason,
-			String errorMessage, TechnicianEntity technician, Long technicianId, boolean isOpened, String preferredEndDate, String preferredStartDate) {
+			String errorMessage, TechnicianEntity technician, Long technicianId, boolean isOpened, String preferredEndDate, String preferredStartDate, boolean isResubmitted) {
 		super();
 		this.request_id = request_id;
 		this.title = title;
@@ -108,7 +114,17 @@ public class RequestEntity {
 		this.technician = technician;
 		this.technicianId = technicianId;
 		this.isOpened =  isOpened;
+        this.isResubmitted = isResubmitted;
 	}
+
+    public boolean GetIsResubmitted() {
+        return isResubmitted;
+    }
+
+    public void setResubmitted(boolean isResubmitted) {
+        this.isResubmitted = isResubmitted;
+    }
+
 	public boolean getIsOpened() {
         return isOpened;
     }
@@ -276,6 +292,8 @@ public class RequestEntity {
     public void setTechnicianId(Long technicianId) {
         this.technicianId = technicianId;
     }
+
+	
 
     
 

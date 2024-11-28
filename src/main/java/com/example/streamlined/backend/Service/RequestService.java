@@ -64,6 +64,7 @@ public class RequestService {
         for (UserEntity admin : admins) {
             nserv.addNotification("A new request has been submitted by " + userFullName + ".", admin.getUser_id(), "Admin");
         }
+		
 
         return savedRequest;
     }
@@ -156,6 +157,7 @@ public class RequestService {
 			throw new NoSuchElementException("Request with ID " + request_id + " does not exist!");
 		}
 	}
+	
 
 
 	
