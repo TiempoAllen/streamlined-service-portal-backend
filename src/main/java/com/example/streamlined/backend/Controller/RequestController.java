@@ -37,15 +37,16 @@ import com.example.streamlined.backend.Service.TechnicianService;
 @RequestMapping("/request")
 @CrossOrigin(origins = {
     "http://localhost:5173", "http://localhost:3000",// Development environment
-    "https://streamlined-service-portal-4amnsogyi-deployed-projects-4069a065.vercel.app","https://streamlined-service-portal.vercel.app/" // Production environment
+    "https://streamlined-service-portal-4amnsogyi-deployed-projects-4069a065.vercel.app", "https://streamlined-service-portal.vercel.app/" // Production environment
 }, allowCredentials = "true")
 public class RequestController {
 
-	@Autowired
-	TechnicianService tserv;
+    @Autowired
+    TechnicianService tserv;
 
     @Autowired
     RequestService rserv;
+    
 
     @Autowired
     RequestRepository requestRepository;
@@ -176,36 +177,34 @@ public class RequestController {
         return rserv.getAllRequests();
     }
 
+    @GetMapping("/{request_id}")
+    public Optional<RequestEntity> getRequestById(@PathVariable int request_id) {
+        Optional<RequestEntity> request = rserv.getRequestById(request_id);
+        return request;
+    }
 
-
-        @GetMapping("/{request_id}")
-        public Optional<RequestEntity> getRequestById(@PathVariable int request_id) {
-            Optional<RequestEntity> request = rserv.getRequestById(request_id);
-            return request;
-        }
-
-        @GetMapping("/technician/{request_id}")
-        public Long getTechnicianId(@PathVariable int request_id) {
-            RequestEntity request = requestRepository.findById(request_id)
+    @GetMapping("/technician/{request_id}")
+    public Long getTechnicianId(@PathVariable int request_id) {
+        RequestEntity request = requestRepository.findById(request_id)
                 .orElseThrow(() -> new RuntimeException("Request not found with id: " + request_id));
-            return request.getTechnicianId();  
-        }
+        return request.getTechnicianId();
+    }
 
-        @GetMapping("/average/{technicianId}")
-        public ResponseEntity<Double> getAverageRating(@PathVariable Long technicianId) {
-            Double averageRating = requestRepository.findAverageRatingByTechnicianId(technicianId);
-            if (averageRating != null) {
-                return ResponseEntity.ok(averageRating);
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(0.0); // Default to 0 if no ratings
-            }
+    @GetMapping("/average/{technicianId}")
+    public ResponseEntity<Double> getAverageRating(@PathVariable Long technicianId) {
+        Double averageRating = requestRepository.findAverageRatingByTechnicianId(technicianId);
+        if (averageRating != null) {
+            return ResponseEntity.ok(averageRating);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(0.0); // Default to 0 if no ratings
         }
+    }
 
-        @GetMapping("/highlights/{technicianId}")
-        public ResponseEntity<Map<String, List<String>>> getFeedbackHighlights(@PathVariable Long technicianId) {
-            Map<String, List<String>> feedbackHighlights = rserv.getFeedbackHighlights(technicianId);
-            return ResponseEntity.ok(feedbackHighlights);
-        }
+    @GetMapping("/highlights/{technicianId}")
+    public ResponseEntity<Map<String, List<String>>> getFeedbackHighlights(@PathVariable Long technicianId) {
+        Map<String, List<String>> feedbackHighlights = rserv.getFeedbackHighlights(technicianId);
+        return ResponseEntity.ok(feedbackHighlights);
+    }
 
     @PutMapping("/updateStatus")
     public RequestEntity updateStatus(@RequestParam int request_id, @RequestBody RequestEntity newRequestStatus) {
@@ -221,7 +220,6 @@ public class RequestController {
 //         @RequestParam Long request_id,
 //         @RequestParam Long tech_id,
 //         @RequestParam String scheduledDate) {
-
 //     try {
 //         RequestEntity updatedRequest = rserv.assignTechnicianToRequest(request_id, tech_id, scheduledDate);
 //         return ResponseEntity.ok("Technician " + tech_id + " assigned to request " + request_id + " successfully");
@@ -231,35 +229,31 @@ public class RequestController {
 //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 //                              .body("An error occurred while assigning the technician.");
 //     }
-
 // }
+    @PutMapping("/submit-evaluation/{request_id}")
+    public RequestEntity submitEvaluation(
+            @PathVariable int request_id,
+            @RequestBody RequestEntity requestEntity) {
+        RequestEntity request = requestRepository.findById(request_id).get();
+        request.setRating(requestEntity.getRating());
+        request.setUserFeedback(requestEntity.getUserFeedback());
+        return requestRepository.save(request);
+    }
 
-
-@PutMapping("/submit-evaluation/{request_id}")
-public RequestEntity submitEvaluation(
-        @PathVariable int request_id,
-        @RequestBody RequestEntity requestEntity) {
-    RequestEntity request = requestRepository.findById(request_id).get();
-    request.setRating(requestEntity.getRating());
-    request.setUserFeedback(requestEntity.getUserFeedback());
-    return requestRepository.save(request);
-}
     @RequestMapping("/markViewed/{request_id}")
-public ResponseEntity<RequestEntity> markRequestAsViewed(@PathVariable int request_id) {
-    RequestEntity updatedRequest = rserv.markRequestAsViewed(request_id);
-    return new ResponseEntity<>(updatedRequest, HttpStatus.OK);
-}
-
+    public ResponseEntity<RequestEntity> markRequestAsViewed(@PathVariable int request_id) {
+        RequestEntity updatedRequest = rserv.markRequestAsViewed(request_id);
+        return new ResponseEntity<>(updatedRequest, HttpStatus.OK);
+    }
 
     @PostMapping("/assignTechnician")
     public ResponseEntity<String> assignTechnicianToRequest(
             @RequestParam Long request_id,
             @RequestParam Long tech_id,
-            @RequestParam String startTime,
-            @RequestParam String endTime) {
+            @RequestParam String startTime) {
 
         try {
-            RequestEntity updatedRequest = rserv.assignTechnicianToRequest(request_id, tech_id, startTime, endTime);
+            RequestEntity updatedRequest = rserv.assignTechnicianToRequest(request_id, tech_id, startTime);
             return ResponseEntity.ok("Technician " + tech_id + " assigned to request " + request_id + " successfully");
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getReason());
@@ -350,8 +344,4 @@ public ResponseEntity<RequestEntity> markRequestAsViewed(@PathVariable int reque
         return ResponseEntity.ok(result);
     }
 
-
-    
-
 }
-
