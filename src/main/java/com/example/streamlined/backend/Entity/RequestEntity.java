@@ -320,6 +320,8 @@ public class RequestEntity {
         this.technicianId = technicianId;
     }
 
+    
+
 	public Integer getRating() {
 		return rating;
 	}
