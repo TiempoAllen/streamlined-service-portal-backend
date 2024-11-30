@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import com.example.streamlined.backend.Entity.RequestEntity;
 import com.example.streamlined.backend.Entity.TechnicianEntity;
 import com.example.streamlined.backend.Entity.UserEntity;
-import com.example.streamlined.backend.Repository.PersonnelSchedule;
 import com.example.streamlined.backend.Repository.RequestRepository;
 import com.example.streamlined.backend.Repository.TechnicianRepository;
 import com.example.streamlined.backend.Repository.UserRepository;
@@ -32,8 +31,7 @@ public class RequestService {
     @Autowired
     NotificationService nserv;
 
-    @Autowired
-    PersonnelSchedule psrepo;
+  
 
     public RequestEntity addRequest(RequestEntity request) {
         // Fetch the user who made the request
@@ -90,23 +88,23 @@ public class RequestService {
             request.setStatus(newRequestStatus.getStatus());
 
             // Handle notifications based on the new status
-            String requestTitle = "\"" + request.getTitle() + "\""; // Enclose title in quotation marks
+            // Enclose title in quotation marks
             if ("Approved".equals(newRequestStatus.getStatus())) {
                 nserv.addNotification(
-                        "Your request  " + requestTitle + " has been approved.",
+                        "Your request  " + request_id + " has been approved.",
                         request.getUser_id(),
                         "User"
                 );
             } else if ("Denied".equals(newRequestStatus.getStatus())) {
                 request.setDenialReason(newRequestStatus.getDenialReason());
                 nserv.addNotification(
-                        "Your request " + requestTitle + " has been denied. Reason: " + newRequestStatus.getDenialReason(),
+                        "Your request " + request_id + " has been denied. Reason: " + newRequestStatus.getDenialReason(),
                         request.getUser_id(),
                         "User"
                 );
             } else if ("Done".equals(newRequestStatus.getStatus())) {
                 nserv.addNotification(
-                        "Your request " + requestTitle + " is done.",
+                        "Your request " + request_id + " is done.",
                         request.getUser_id(),
                         "User"
                 );
@@ -134,7 +132,7 @@ public class RequestService {
 
                 // Notify the user that their request has been viewed, using the title
                 nserv.addNotification(
-                        "Your request \"" + request.getTitle() + "\" has been viewed.",
+                        "Your request \"" + request.getRequest_id() + "\" has been viewed.",
                         request.getUser_id(),
                         "User"
                 );
@@ -204,17 +202,6 @@ public class RequestService {
             msg = "Request " + request_id + " does not exist.";
         }
         return msg;
-    }
-
-    public Map<String, List<String>> getFeedbackHighlights(Long technicianId) {
-        List<String> positiveFeedback = rrepo.findPositiveFeedbackByTechnicianId(technicianId);
-        List<String> negativeFeedback = rrepo.findNegativeFeedbackByTechnicianId(technicianId);
-
-        Map<String, List<String>> feedbackHighlights = new HashMap<>();
-        feedbackHighlights.put("positive", positiveFeedback);
-        feedbackHighlights.put("negative", negativeFeedback);
-
-        return feedbackHighlights;
     }
 
     public String deleteAllRequests() {

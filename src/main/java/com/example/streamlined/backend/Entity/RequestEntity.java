@@ -19,8 +19,6 @@ public class RequestEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long request_id;
 
-    private String title;
-
     @Column(name = "description")
     private String description;
 
@@ -45,28 +43,11 @@ public class RequestEntity {
     @Column(name = "user_lastname")
     private String user_lastname;
 
-    @Column(name = "scheduled_date")
-    private String scheduledDate; 
-
-    @Column(name = "preferred_date")
-    private String preferredDate; 
     @Column(name = "scheduled_start_date")
     private String scheduledStartDate;
 
-    @Column(name = "scheduled_end_date")
-    private String scheduledEndDate;
-
-    @Column(name = "preferred_start_date")
-    private String preferredStartDate;
-
-    @Column(name = "preferred_end_date")
-    private String preferredEndDate;
-
     @Column(name = "attachment")
     private String attachment;
-
-    @Column(name = "urgency_level")
-    private String urgency_level;
 
     @Column(name = "denial_reason", nullable = true)
     private String denialReason;
@@ -87,12 +68,8 @@ public class RequestEntity {
 
     @Column(name = "is_resubmitted", nullable = true)
     private boolean isResubmitted = false; // Default value
+ 
 
-    @Column(name = "rating", nullable = true)
-	private Integer rating; 
-
-	@Column(name = "user_feedback", nullable = true, length = 500)
-	private String userFeedback; 
 
 
 
@@ -104,14 +81,13 @@ public class RequestEntity {
    
 
 
-	public RequestEntity(Long request_id, String title, String description, String datetime, String status,
+	public RequestEntity(Long request_id,  String description, String datetime, String status,
 			String request_technician, String request_location, Long user_id, String user_firstname,
-			String user_lastname, String scheduledDate, String preferredDate, String attachment, String urgency_level, 
-			String denialReason, Boolean isOpened, String errorMessage, TechnicianEntity technician, Long technicianId, Integer rating, 
-			String userFeedback, boolean isResubmitted) {
+			String user_lastname, String attachment, 
+			String denialReason, Boolean isOpened, String errorMessage, TechnicianEntity technician, Long technicianId, 
+			boolean isResubmitted) {
 		super();
 		this.request_id = request_id;
-		this.title = title;
 		this.description = description;
 		this.datetime = datetime;
 		this.status = status;
@@ -120,17 +96,12 @@ public class RequestEntity {
 		this.user_id = user_id;
 		this.user_firstname = user_firstname;
 		this.user_lastname = user_lastname;
-		this.scheduledDate = scheduledDate;
-		this.preferredDate = preferredDate;
 		this.attachment = attachment;
-		this.urgency_level = urgency_level;
 		this.denialReason = denialReason;
 		this.isOpened = isOpened;
 		this.errorMessage = errorMessage;
 		this.technician = technician;
 		this.technicianId = technicianId;
-		this.rating = rating;
-		this.userFeedback = userFeedback;
         this.isResubmitted = isResubmitted;
 	}
 	// Getter and Setter for isOpened
@@ -157,13 +128,7 @@ public class RequestEntity {
         this.request_id = request_id;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
+   
 
     public String getDescription() {
         return description;
@@ -237,44 +202,12 @@ public class RequestEntity {
         this.scheduledStartDate = scheduledStartDate;
     }
 
-    public String getScheduledEndDate() {
-        return scheduledEndDate;
-    }
-
-    public void setScheduledEndDate(String scheduledEndDate) {
-        this.scheduledEndDate = scheduledEndDate;
-    }
-
-    public String getPreferredStartDate() {
-        return preferredStartDate;
-    }
-
-    public void setPreferredStartDate(String preferredStartDate) {
-        this.preferredStartDate = preferredStartDate;
-    }
-
-    public String getPreferredEndDate() {
-        return preferredEndDate;
-    }
-
-    public void setPreferredEndDate(String preferredEndDate) {
-        this.preferredEndDate = preferredEndDate;
-    }
-
     public String getAttachment() {
         return attachment;
     }
 
     public void setAttachment(String attachment) {
         this.attachment = attachment;
-    }
-
-    public String getUrgency_level() {
-        return urgency_level;
-    }
-
-    public void setUrgency_level(String urgency_level) {
-        this.urgency_level = urgency_level;
     }
 
     public String getDenialReason() {
@@ -309,21 +242,6 @@ public class RequestEntity {
         this.technicianId = technicianId;
     }
 
-	public Integer getRating() {
-		return rating;
-	}
-	
-	public void setRating(Integer rating) {
-		this.rating = rating;
-	}
-	
-	public String getUserFeedback() {
-		return userFeedback;
-	}
-	
-	public void setUserFeedback(String userFeedback) {
-		this.userFeedback = userFeedback;
-	}
 
 
 }
