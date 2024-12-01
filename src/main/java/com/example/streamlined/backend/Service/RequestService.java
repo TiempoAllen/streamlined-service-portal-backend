@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import com.example.streamlined.backend.Entity.RequestEntity;
 import com.example.streamlined.backend.Entity.TechnicianEntity;
 import com.example.streamlined.backend.Entity.UserEntity;
-import com.example.streamlined.backend.Repository.PersonnelSchedule;
 import com.example.streamlined.backend.Repository.RequestRepository;
 import com.example.streamlined.backend.Repository.TechnicianRepository;
 import com.example.streamlined.backend.Repository.UserRepository;
@@ -32,8 +31,7 @@ public class RequestService {
     @Autowired
     NotificationService nserv;
 
-    @Autowired
-    PersonnelSchedule psrepo;
+  
 
     public RequestEntity addRequest(RequestEntity request) {
         // Fetch the user who made the request
@@ -111,16 +109,26 @@ public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus
                     request.getUser_id(),
                     "User"
             );
-        }
 
-    } catch (NoSuchElementException ex) {
-        // Handle case where the request is not found
-        throw new NoSuchElementException("Request with ID " + request_id + " does not exist!");
-    } finally {
-        // Save and return the updated request
-        return rrepo.save(request);
-    }
-}
+            } else if ("Cancelled".equals(newRequestStatus.getStatus())) {
+                List<UserEntity> admins = urepo.findByIsadmin(true);
+                for (UserEntity admin : admins) {
+                    nserv.addNotification(
+                            "Your request has been cancelled.",
+                            admin.getUser_id(),
+                            "Admin"
+                    );
+                }
+            }
+
+        } catch (NoSuchElementException ex) {
+            // Handle case where the request is not found
+            throw new NoSuchElementException("Request with ID " + request_id + " does not exist!");
+        } finally {
+            // Save and return the updated request
+            return rrepo.save(request);
+		}
+	}
 
 
     public RequestEntity markRequestAsViewed(int request_id) {
@@ -136,7 +144,7 @@ public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus
 
                 // Notify the user that their request has been viewed, using the title
                 nserv.addNotification(
-                        "Your request \"" + request.getTitle() + "\" has been viewed.",
+                        "Your request \"" + request.getRequest_id() + "\" has been viewed.",
                         request.getUser_id(),
                         "User"
                 );
@@ -206,17 +214,6 @@ public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus
             msg = "Request " + request_id + " does not exist.";
         }
         return msg;
-    }
-
-    public Map<String, List<String>> getFeedbackHighlights(Long technicianId) {
-        List<String> positiveFeedback = rrepo.findPositiveFeedbackByTechnicianId(technicianId);
-        List<String> negativeFeedback = rrepo.findNegativeFeedbackByTechnicianId(technicianId);
-
-        Map<String, List<String>> feedbackHighlights = new HashMap<>();
-        feedbackHighlights.put("positive", positiveFeedback);
-        feedbackHighlights.put("negative", negativeFeedback);
-
-        return feedbackHighlights;
     }
 
     public String deleteAllRequests() {

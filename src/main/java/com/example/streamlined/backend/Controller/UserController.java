@@ -30,25 +30,24 @@ import com.example.streamlined.backend.Service.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
 
-
 @RestController
 @RequestMapping("/user")
 @CrossOrigin(origins = {
     "http://localhost:5173", "http://localhost:3000", // Development environment
-    "https://streamlined-service-portal-4amnsogyi-deployed-projects-4069a065.vercel.app","https://streamlined-service-portal.vercel.app/" // Production environment
+    "https://streamlined-service-portal-4amnsogyi-deployed-projects-4069a065.vercel.app", "https://streamlined-service-portal.vercel.app/" // Production environment
 }, allowCredentials = "true")
 public class UserController {
-	@Autowired
-	UserService userv;
+
+    @Autowired
+    UserService userv;
 
     @Autowired
     UserRepository urepo;
 
-	@GetMapping("/hello")
-	public String printHello() {
-		return "Hello World!";
-	}
-
+    @GetMapping("/hello")
+    public String printHello() {
+        return "Hello World!";
+    }
 
     @PostMapping("/add")
     public ResponseEntity<?> insertUser(@RequestBody UserEntity user) {
@@ -68,31 +67,29 @@ public class UserController {
     }
 
     @PutMapping("/updateUser")
-	public UserEntity updateUser(@RequestParam int uid, @RequestBody UserEntity newUserDetails) {
-		return userv.updateUser(uid, newUserDetails);
-	}
+    public UserEntity updateUser(@RequestParam int uid, @RequestBody UserEntity newUserDetails) {
+        return userv.updateUser(uid, newUserDetails);
+    }
 
+    @GetMapping("/all")
+    public List<UserEntity> getAllUsers() {
+        return userv.getAllUsers();
+    }
 
-	@GetMapping("/all")
-	public List<UserEntity> getAllUsers(){
-		return userv.getAllUsers();
-	}
-
-	@GetMapping("/{user_id}")
+    @GetMapping("/{user_id}")
     public Optional<UserEntity> getUserById(@PathVariable int user_id) {
         Optional<UserEntity> user = userv.getUserById(user_id);
         return user;
     }
 
-	/*@PutMapping("/updateUser")
+    /*@PutMapping("/updateUser")
 	public UserEntity updateUser(@RequestParam int uid, @RequestBody UserEntity newUserDetails) {
 		return userv.updateUser(uid, newUserDetails);
 	}*/
-
-	@DeleteMapping("/{user_id}")
-	public String deleteUser (@PathVariable int user_id) {
-		return userv.deleteUser(user_id);
-	}
+    @DeleteMapping("/{user_id}")
+    public String deleteUser(@PathVariable int user_id) {
+        return userv.deleteUser(user_id);
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserEntity loginRequest) {
@@ -109,8 +106,9 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
     }
-        @PostMapping("/uploadProfilePicture/{user_id}")
-        public String uploadProfilePicture(Long user_id, MultipartFile file) {
+
+    @PostMapping("/uploadProfilePicture/{user_id}")
+    public String uploadProfilePicture(Long user_id, MultipartFile file) {
         UserEntity user = urepo.findByUserId(user_id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -158,6 +156,5 @@ public class UserController {
             throw new RuntimeException("Failed to read profile picture: " + e.getMessage());
         }
     }
-
 
 }
