@@ -242,26 +242,6 @@ public class RequestEntity {
         this.technicianId = technicianId;
     }
 
-<<<<<<< HEAD
-    
-
-	public Integer getRating() {
-		return rating;
-	}
-	
-	public void setRating(Integer rating) {
-		this.rating = rating;
-	}
-	
-	public String getUserFeedback() {
-		return userFeedback;
-	}
-	
-	public void setUserFeedback(String userFeedback) {
-		this.userFeedback = userFeedback;
-	}
-=======
->>>>>>> master
 
 
 }
