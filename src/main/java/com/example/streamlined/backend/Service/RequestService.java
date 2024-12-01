@@ -112,7 +112,7 @@ public class RequestService {
                 List<UserEntity> admins = urepo.findByIsadmin(true);
                 for (UserEntity admin : admins) {
                     nserv.addNotification(
-                            "The request " + requestTitle + " has been cancelled.",
+                            "The request " + request_id + " has been cancelled.",
                             admin.getUser_id(),
                             "Admin"
                     );
