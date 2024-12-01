@@ -110,6 +110,15 @@ public class RequestService {
                         request.getUser_id(),
                         "User"
                 );
+            } else if ("Cancelled".equals(newRequestStatus.getStatus())) {
+                List<UserEntity> admins = urepo.findByIsadmin(true);
+                for (UserEntity admin : admins) {
+                    nserv.addNotification(
+                            "The request " + requestTitle + " has been cancelled.",
+                            admin.getUser_id(),
+                            "Admin"
+                    );
+                }
             }
 
         } catch (NoSuchElementException ex) {
