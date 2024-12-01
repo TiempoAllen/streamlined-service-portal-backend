@@ -1,8 +1,6 @@
 package com.example.streamlined.backend.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -30,8 +28,6 @@ public class RequestService {
 
     @Autowired
     NotificationService nserv;
-
-  
 
     public RequestEntity addRequest(RequestEntity request) {
         // Fetch the user who made the request
@@ -112,7 +108,7 @@ public class RequestService {
                 List<UserEntity> admins = urepo.findByIsadmin(true);
                 for (UserEntity admin : admins) {
                     nserv.addNotification(
-                            "The request " + requestTitle + " has been cancelled.",
+                            "The request " + request_id + " has been cancelled.",
                             admin.getUser_id(),
                             "Admin"
                     );
