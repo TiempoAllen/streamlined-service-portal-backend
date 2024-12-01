@@ -76,43 +76,49 @@ public class RequestService {
     }
 
     @SuppressWarnings("finally")
-    public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus) {
-        RequestEntity request = new RequestEntity();
-        try {
-            // Fetch the existing request by ID
-            request = rrepo.findById(request_id).orElseThrow(
-                    () -> new NoSuchElementException("Request with ID " + request_id + " does not exist!")
+public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus) {
+    RequestEntity request = new RequestEntity();
+    try {
+        // Fetch the existing request by ID
+        request = rrepo.findById(request_id).orElseThrow(
+                () -> new NoSuchElementException("Request with ID " + request_id + " does not exist!")
+        );
+
+        // Update the status
+        request.setStatus(newRequestStatus.getStatus());
+
+        // Handle notifications based on the new status
+        String requestPrefix = "Request " + request_id + ": "; // Prefix with request ID
+
+        if ("Approved".equals(newRequestStatus.getStatus())) {
+            nserv.addNotification(
+                    requestPrefix + "Your request has been approved!",
+                    request.getUser_id(),
+                    "User"
+            );
+        } else if ("Denied".equals(newRequestStatus.getStatus())) {
+            request.setDenialReason(newRequestStatus.getDenialReason());
+            nserv.addNotification(
+                    requestPrefix + "Your request has been denied. Reason: " + newRequestStatus.getDenialReason(),
+                    request.getUser_id(),
+                    "User"
+            );
+        } else if ("Done".equals(newRequestStatus.getStatus())) {
+            nserv.addNotification(
+                    requestPrefix + "Your request is done.",
+                    request.getUser_id(),
+                    "User"
             );
 
-            // Update the status
-            request.setStatus(newRequestStatus.getStatus());
-
-            // Handle notifications based on the new status
-            // Enclose title in quotation marks
-            if ("Approved".equals(newRequestStatus.getStatus())) {
-                nserv.addNotification(
-                        "Your request  " + request_id + " has been approved.",
-                        request.getUser_id(),
-                        "User"
-                );
-            } else if ("Denied".equals(newRequestStatus.getStatus())) {
-                request.setDenialReason(newRequestStatus.getDenialReason());
-                nserv.addNotification(
-                        "Your request " + request_id + " has been denied. Reason: " + newRequestStatus.getDenialReason(),
-                        request.getUser_id(),
-                        "User"
-                );
-            } else if ("Done".equals(newRequestStatus.getStatus())) {
-                nserv.addNotification(
-                        "Your request " + request_id + " is done.",
-                        request.getUser_id(),
-                        "User"
-                );
             } else if ("Cancelled".equals(newRequestStatus.getStatus())) {
                 List<UserEntity> admins = urepo.findByIsadmin(true);
                 for (UserEntity admin : admins) {
                     nserv.addNotification(
+<<<<<<< HEAD
                             "The request " + request_id + " has been cancelled.",
+=======
+                            "Your request has been cancelled.",
+>>>>>>> master
                             admin.getUser_id(),
                             "Admin"
                     );
@@ -125,8 +131,9 @@ public class RequestService {
         } finally {
             // Save and return the updated request
             return rrepo.save(request);
-        }
-    }
+		}
+	}
+
 
     public RequestEntity markRequestAsViewed(int request_id) {
         try {
@@ -172,7 +179,7 @@ public class RequestService {
         // Set the request's scheduled time and status
         request.setScheduledStartDate(scheduledStartDate);
         request.setStatus("In Progress");
-        nserv.addNotification("Your request has been assigned.", request.getUser_id(), "User");
+        nserv.addNotification("Request ID: " + request_id + " : Your request has been assigned.", request.getUser_id(), "User");
 
         rrepo.save(request);
 

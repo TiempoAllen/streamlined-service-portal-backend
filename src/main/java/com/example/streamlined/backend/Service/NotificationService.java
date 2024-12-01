@@ -3,6 +3,7 @@ package com.example.streamlined.backend.Service;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class NotificationService {
         notification.setRecipientId(recipientId);
         notification.setRecipientRole(recipientRole);
         notification.setTimestamp(new Timestamp(System.currentTimeMillis()));
-        notification.setRead(false);
+        notification.setIsRead(false);
         notification.setNotificationType(notificationType);
     
         // Logic to fetch request_id based on certain conditions
@@ -51,7 +52,17 @@ public class NotificationService {
     
         notificationRepository.save(notification);
     }
-    
+
+
+    public Optional<NotificationEntity> findById(Long notificationId) {
+        return notificationRepository.findById(notificationId);
+    }
+
+    public NotificationEntity save(NotificationEntity notification) {
+        return notificationRepository.save(notification);
+    }
+
+
     
 
     public List<NotificationEntity> getNotificationsForUser(Long userId) {
@@ -61,9 +72,10 @@ public class NotificationService {
     public void markNotificationAsRead(Long notificationId) {
         NotificationEntity notification = notificationRepository.findById(notificationId)
             .orElseThrow(() -> new NoSuchElementException("Notification not found"));
-        notification.setRead(true);
-        notificationRepository.save(notification);
+        notification.setIsRead(true); 
+        notificationRepository.save(notification); // Persist the change
     }
+    
 
     public void notifyUserForEvaluation(Long requestId, Long userId) {
         String message = "Your request (ID: " + requestId + ") has been completed. Please provide feedback.";
