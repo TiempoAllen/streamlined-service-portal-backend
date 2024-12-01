@@ -71,13 +71,10 @@ public class RequestController {
 
         // No need to parse datetime strings, just set them directly
         request.setDatetime(datetime);
-        request.setPreferredStartDate(preferredStartDate);
-        request.setPreferredEndDate(preferredEndDate);
+        
         // request.setScheduledDate(scheduledDate);
 
-        request.setTitle(title);
         request.setDescription(description);
-        request.setUrgency_level(urgency_level);
         request.setUser_id(user_id);
 
         // Save the file to a local directory or cloud storage
@@ -129,18 +126,7 @@ public class RequestController {
         if (datetime != null) {
             existingRequest.setDatetime(datetime);
         }
-        if (title != null) {
-            existingRequest.setTitle(title);
-        }
-        if (urgency_level != null) {
-            existingRequest.setUrgency_level(urgency_level);
-        }
-        if (preferredDate != null) {
-            existingRequest.setPreferredStartDate(preferredDate);
-        }
-        if (preferredDate != null) {
-            existingRequest.setPreferredEndDate(preferredDate);
-        }
+     
         if (description != null) {
             existingRequest.setDescription(description);
         }
@@ -189,22 +175,7 @@ public class RequestController {
                 .orElseThrow(() -> new RuntimeException("Request not found with id: " + request_id));
         return request.getTechnicianId();
     }
-
-    @GetMapping("/average/{technicianId}")
-    public ResponseEntity<Double> getAverageRating(@PathVariable Long technicianId) {
-        Double averageRating = requestRepository.findAverageRatingByTechnicianId(technicianId);
-        if (averageRating != null) {
-            return ResponseEntity.ok(averageRating);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(0.0); // Default to 0 if no ratings
-        }
-    }
-
-    @GetMapping("/highlights/{technicianId}")
-    public ResponseEntity<Map<String, List<String>>> getFeedbackHighlights(@PathVariable Long technicianId) {
-        Map<String, List<String>> feedbackHighlights = rserv.getFeedbackHighlights(technicianId);
-        return ResponseEntity.ok(feedbackHighlights);
-    }
+ 
 
     @PutMapping("/updateStatus")
     public RequestEntity updateStatus(@RequestParam int request_id, @RequestBody RequestEntity newRequestStatus) {
@@ -235,8 +206,6 @@ public class RequestController {
             @PathVariable int request_id,
             @RequestBody RequestEntity requestEntity) {
         RequestEntity request = requestRepository.findById(request_id).get();
-        request.setRating(requestEntity.getRating());
-        request.setUserFeedback(requestEntity.getUserFeedback());
         return requestRepository.save(request);
     }
 
