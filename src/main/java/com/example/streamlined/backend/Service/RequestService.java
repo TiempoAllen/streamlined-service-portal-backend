@@ -175,7 +175,7 @@ public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus
         // Set the request's scheduled time and status
         request.setScheduledStartDate(scheduledStartDate);
         request.setStatus("In Progress");
-        nserv.addNotification("Request ID: " + request_id + " : Your request has been assigned.", request.getUser_id(), "User");
+        nserv.addNotification("Request " + request_id + ": Your request has been assigned.", request.getUser_id(), "User");
 
         rrepo.save(request);
 
