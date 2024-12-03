@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -275,28 +276,33 @@ public class RequestController {
         }
     }
 
-    @GetMapping("/uploads/{fileName:.+}")
+    @GetMapping("/**/uploads/{fileName:.+}")
     public ResponseEntity<Resource> getFile(@PathVariable String fileName) {
         try {
-            // Sanitize the file name to remove unwanted characters
-            fileName = fileName.trim().replaceAll("[\\n\\r]", ""); // Remove newlines
-
-            // Define the path to the uploads directory
+            // Sanitize the file name
+            fileName = fileName.trim().replaceAll("[\\n\\r]", ""); 
+    
+            // Use the absolute path to the uploads directory
             Path filePath = Paths.get("uploads").resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
-
+    
             // Check if the resource exists and is readable
             if (resource.exists() && resource.isReadable()) {
-                return ResponseEntity.ok().body(resource);
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
             } else {
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
-            // Log the exception for debugging
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);
         }
     }
+    
+
+
+
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<RequestEntity>> getRequestsByUserId(@PathVariable Long userId) {
