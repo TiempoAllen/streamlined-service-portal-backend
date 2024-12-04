@@ -69,7 +69,8 @@ public class RequestEntity {
     @Column(name = "is_resubmitted", nullable = true)
     private boolean isResubmitted = false; // Default value
  
-
+    @Column(name = "remarks")
+    private String remarks;
 
 
 
@@ -85,7 +86,7 @@ public class RequestEntity {
 			String request_technician, String request_location, Long user_id, String user_firstname,
 			String user_lastname, String attachment, 
 			String denialReason, Boolean isOpened, String errorMessage, TechnicianEntity technician, Long technicianId, 
-			boolean isResubmitted) {
+			boolean isResubmitted, String remarks) {
 		super();
 		this.request_id = request_id;
 		this.description = description;
@@ -103,6 +104,7 @@ public class RequestEntity {
 		this.technician = technician;
 		this.technicianId = technicianId;
         this.isResubmitted = isResubmitted;
+        this.remarks = remarks;
 	}
 	// Getter and Setter for isOpened
 	public Boolean getIsOpened() {
@@ -242,6 +244,13 @@ public class RequestEntity {
         this.technicianId = technicianId;
     }
 
+    public String getRemarks() {
+        return remarks;
+    }
 
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
 
+    
 }

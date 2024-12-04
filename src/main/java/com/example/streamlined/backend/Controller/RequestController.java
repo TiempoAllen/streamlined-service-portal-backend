@@ -61,6 +61,7 @@ public class RequestController {
             // @RequestParam(value = "scheduledDate", required = false) String scheduledDate,
             @RequestParam(value = "title", required = false) String title,
             @RequestParam("description") String description,
+            @RequestParam("remarks") String remarks,
             @RequestParam("urgency_level") String urgency_level,
             @RequestParam("user_id") Long user_id,
             @RequestParam(value = "attachment", required = false) MultipartFile attachment) throws IOException {
@@ -73,7 +74,7 @@ public class RequestController {
         request.setDatetime(datetime);
         
         // request.setScheduledDate(scheduledDate);
-
+        request.setRemarks(remarks);
         request.setDescription(description);
         request.setUser_id(user_id);
 
@@ -105,6 +106,7 @@ public class RequestController {
             @RequestParam(value = "urgency_level", required = false) String urgency_level,
             @RequestParam(value = "preferredDate", required = false) String preferredDate,
             @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value ="remarks", required = false) String remarks,
             @RequestParam(value = "user_id", required = false) Long user_id,
             @RequestParam(value = "attachment", required = false) MultipartFile attachment) throws IOException {
 
@@ -130,6 +132,11 @@ public class RequestController {
         if (description != null) {
             existingRequest.setDescription(description);
         }
+
+        if (remarks != null) {
+            existingRequest.setDescription(remarks);
+        }
+
         if (user_id != null) {
             existingRequest.setUser_id(user_id);
         }
@@ -201,13 +208,13 @@ public class RequestController {
 //                              .body("An error occurred while assigning the technician.");
 //     }
 // }
-    @PutMapping("/submit-evaluation/{request_id}")
-    public RequestEntity submitEvaluation(
-            @PathVariable int request_id,
-            @RequestBody RequestEntity requestEntity) {
-        RequestEntity request = requestRepository.findById(request_id).get();
-        return requestRepository.save(request);
-    }
+    // @PutMapping("/submit-evaluation/{request_id}")
+    // public RequestEntity submitEvaluation(
+    //         @PathVariable int request_id,
+    //         @RequestBody RequestEntity requestEntity) {
+    //     RequestEntity request = requestRepository.findById(request_id).get();
+    //     return requestRepository.save(request);
+    // }
 
     @RequestMapping("/markViewed/{request_id}")
     public ResponseEntity<RequestEntity> markRequestAsViewed(@PathVariable int request_id) {
