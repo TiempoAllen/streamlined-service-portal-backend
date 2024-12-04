@@ -132,10 +132,13 @@ public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus
 
 
     public RequestEntity markRequestAsViewed(int request_id) {
+     
         try {
             // Find the request by its ID
             RequestEntity request = rrepo.findById(request_id)
                     .orElseThrow(() -> new NoSuchElementException("Request with ID " + request_id + " does not exist!"));
+
+                    String requestPrefix = "Request " + request_id + ": "; 
 
             // Check if the request is already viewed
             if (!request.getIsOpened()) {
@@ -144,7 +147,7 @@ public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus
 
                 // Notify the user that their request has been viewed, using the title
                 nserv.addNotification(
-                        "Your request \"" + request.getRequest_id() + "\" has been viewed.",
+                        requestPrefix + "Your request has been viewed.",
                         request.getUser_id(),
                         "User"
                 );
@@ -175,7 +178,7 @@ public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus
         // Set the request's scheduled time and status
         request.setScheduledStartDate(scheduledStartDate);
         request.setStatus("In Progress");
-        nserv.addNotification("Request ID: " + request_id + " : Your request has been assigned.", request.getUser_id(), "User");
+        nserv.addNotification("Request " + request_id + ": Your request has been assigned.", request.getUser_id(), "User");
 
         rrepo.save(request);
 
