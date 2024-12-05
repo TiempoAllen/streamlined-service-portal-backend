@@ -283,7 +283,7 @@ public class RequestController {
         }
     }
 
-    @GetMapping("/**/uploads/{fileName:.+}")
+    @GetMapping("/uploads/{fileName:.+}")
     public ResponseEntity<Resource> getFile(@PathVariable String fileName) {
         try {
             // Sanitize the file name
