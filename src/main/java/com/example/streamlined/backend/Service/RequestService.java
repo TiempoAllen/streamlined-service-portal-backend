@@ -1,8 +1,7 @@
 package com.example.streamlined.backend.Service;
 
-import java.util.HashMap;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -30,8 +29,6 @@ public class RequestService {
 
     @Autowired
     NotificationService nserv;
-
-  
 
     public RequestEntity addRequest(RequestEntity request) {
         // Fetch the user who made the request
@@ -76,69 +73,88 @@ public class RequestService {
     }
 
     @SuppressWarnings("finally")
-public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus) {
-    RequestEntity request = new RequestEntity();
-    try {
-        // Fetch the existing request by ID
-        request = rrepo.findById(request_id).orElseThrow(
-                () -> new NoSuchElementException("Request with ID " + request_id + " does not exist!")
-        );
+    public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus) {
+        RequestEntity request = new RequestEntity();
+        try {
+            // Fetch the existing request by ID
+            request = rrepo.findById(request_id).orElseThrow(
+                    () -> new NoSuchElementException("Request with ID " + request_id + " does not exist!"));
 
-        // Update the status
-        request.setStatus(newRequestStatus.getStatus());
+            // Update the status
+            request.setStatus(newRequestStatus.getStatus());
 
-        // Handle notifications based on the new status
-        String requestPrefix = "Request " + request_id + ": "; // Prefix with request ID
+            // Handle notifications based on the new status
+            String requestPrefix = "Request " + request_id + ": "; // Prefix with request ID
 
-        if ("Approved".equals(newRequestStatus.getStatus())) {
-            nserv.addNotification(
-                    requestPrefix + "Your request has been approved!",
-                    request.getUser_id(),
-                    "User"
-            );
-        } else if ("Denied".equals(newRequestStatus.getStatus())) {
-            request.setDenialReason(newRequestStatus.getDenialReason());
-            nserv.addNotification(
-                    requestPrefix + "Your request has been denied. Reason: " + newRequestStatus.getDenialReason(),
-                    request.getUser_id(),
-                    "User"
-            );
-        } else if ("Done".equals(newRequestStatus.getStatus())) {
-            nserv.addNotification(
-                    requestPrefix + "Your request is done.",
-                    request.getUser_id(),
-                    "User"
-            );
+            if ("Approved".equals(newRequestStatus.getStatus())) {
+                nserv.addNotification(
+                        requestPrefix + "Your request has been approved!",
+                        request.getUser_id(),
+                        "User");
+            } else if ("Denied".equals(newRequestStatus.getStatus())) {
+                request.setDenialReason(newRequestStatus.getDenialReason());
+                nserv.addNotification(
+                        requestPrefix + "Your request has been denied. Reason: " + newRequestStatus.getDenialReason(),
+                        request.getUser_id(),
+                        "User");
+            } else if ("Done".equals(newRequestStatus.getStatus())) {
+                nserv.addNotification(
+                        requestPrefix + "Your request is done.",
+                        request.getUser_id(),
+                        "User");
 
-            } else if ("Cancelled".equals(newRequestStatus.getStatus())) {
-                List<UserEntity> admins = urepo.findByIsadmin(true);
-                for (UserEntity admin : admins) {
+                // Update the status
+                request.setStatus(newRequestStatus.getStatus());
+
+                // Handle notifications based on the new status
+                // Enclose title in quotation marks
+                if ("Approved".equals(newRequestStatus.getStatus())) {
                     nserv.addNotification(
-                            "Your request has been cancelled.",
-                            admin.getUser_id(),
-                            "Admin"
-                    );
+                            "Your request  " + request_id + " has been approved.",
+                            request.getUser_id(),
+                            "User");
+                } else if ("Denied".equals(newRequestStatus.getStatus())) {
+                    request.setDenialReason(newRequestStatus.getDenialReason());
+                    nserv.addNotification(
+                            "Your request " + request_id + " has been denied. Reason: "
+                            + newRequestStatus.getDenialReason(),
+                            request.getUser_id(),
+                            "User");
+                } else if ("Done".equals(newRequestStatus.getStatus())) {
+                    request.setCompletedStartDate(LocalDate.now().toString());
+                    nserv.addNotification(
+                            "Your request " + request_id + " is done.",
+                            request.getUser_id(),
+                            "User");
+                } else if ("Cancelled".equals(newRequestStatus.getStatus())) {
+                    List<UserEntity> admins = urepo.findByIsadmin(true);
+                    for (UserEntity admin : admins) {
+                        nserv.addNotification(
+                                requestPrefix + "was cancelled.",
+                                admin.getUser_id(),
+                                "Admin");
+                    }
                 }
-            }
 
+            }
         } catch (NoSuchElementException ex) {
             // Handle case where the request is not found
             throw new NoSuchElementException("Request with ID " + request_id + " does not exist!");
         } finally {
             // Save and return the updated request
             return rrepo.save(request);
-		}
-	}
+        }
 
+    }
 
     public RequestEntity markRequestAsViewed(int request_id) {
-     
+
         try {
             // Find the request by its ID
             RequestEntity request = rrepo.findById(request_id)
                     .orElseThrow(() -> new NoSuchElementException("Request with ID " + request_id + " does not exist!"));
 
-                    String requestPrefix = "Request " + request_id + ": "; 
+            String requestPrefix = "Request " + request_id + ": ";
 
             // Check if the request is already viewed
             if (!request.getIsOpened()) {
@@ -164,59 +180,80 @@ public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus
         }
     }
 
-    public RequestEntity assignTechnicianToRequest(Long request_id, Long tech_id, String scheduledStartDate) {
+    // public RequestEntity assignTechnicianToRequest(Long request_id, Long tech_id, String scheduledStartDate) {
+    //     RequestEntity request = rrepo.findById(request_id.intValue())
+    //             .orElseThrow(() -> new NoSuchElementException("Request " + request_id + " does not exist!"));
+    //     TechnicianEntity technician = trepo.findById(tech_id.longValue())
+    //             .orElseThrow(() -> new NoSuchElementException("Technician " + tech_id + " does not exist!"));
+    //     if (request.getTechnicians().contains(technician)) {
+    //         throw new IllegalArgumentException("Technician " + tech_id + " is already assigned to this request.");
+    //     }
+    //     request.getTechnicians().add(technician);
+    //     // Set the request's scheduled time and status
+    //     request.setScheduledStartDate(scheduledStartDate);
+    //     request.setStatus("In Progress");
+    //     nserv.addNotification("Your request has been assigned.", request.getUser_id(), "User");
+    //     rrepo.save(request);
+    //     return request;
+    // }
+    public RequestEntity assignTechniciansToRequest(Long request_id, List<Long> tech_ids, String scheduledStartDate) {
+        // Fetch the request by ID
         RequestEntity request = rrepo.findById(request_id.intValue())
                 .orElseThrow(() -> new NoSuchElementException("Request " + request_id + " does not exist!"));
 
-        TechnicianEntity technician = trepo.findById(tech_id.longValue())
-                .orElseThrow(() -> new NoSuchElementException("Technician " + tech_id + " does not exist!"));
-        // boolean hasConflict = psrepo.hasConflict(tech_id, scheduledStartDate);
-        // if (hasConflict) {
-        // 	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Personnel is not available during the requested time.");
-        // }
+        // Iterate through the list of technician IDs
+        for (Long tech_id : tech_ids) {
+            TechnicianEntity technician = trepo.findById(tech_id.longValue())
+                    .orElseThrow(() -> new NoSuchElementException("Technician " + tech_id + " does not exist!"));
 
-        // Set the request's scheduled time and status
-        request.setScheduledStartDate(scheduledStartDate);
-        request.setStatus("In Progress");
-        nserv.addNotification("Request " + request_id + ": Your request has been assigned.", request.getUser_id(), "User");
+            // Check if the technician is already assigned
+            if (request.getTechnicians().contains(technician)) {
+                throw new IllegalArgumentException("Technician " + tech_id + " is already assigned to this request.");
+            }
 
-        rrepo.save(request);
-
-        // PersonnelScheduleEntity schedule = new PersonnelScheduleEntity(
-        // 		scheduledEndDate, technician, request, null, scheduledStartDate, "Assigned");
-        // psrepo.save(schedule);
-        return request;
-    }
-
-    public RequestEntity removeTechnicianFromRequest(Long request_id) {
-        RequestEntity request = rrepo.findById(request_id.intValue())
-                .orElseThrow(() -> new NoSuchElementException("Request " + request_id + " does not exist!"));
-
-        TechnicianEntity technician = request.getTechnician();
-        if (technician != null) {
-            // Remove the request from the technician's list
-            technician.removeRequest(request);
-            // Optionally save the technician entity if needed
-            trepo.save(technician);
+            // Add the technician to the request
+            request.getTechnicians().add(technician);
         }
 
-        // Remove the technician from the request
-        request.setTechnician(null);
-        request.setTechnicianId(null); // Optional: Set technicianId to null
+        // Set the request's scheduled start date and status
+        request.setScheduledStartDate(scheduledStartDate);
+        request.setStatus("In Progress");
 
+        // Notify the user about the assignment
+        nserv.addNotification("Your request has been assigned to technicians.", request.getUser_id(), "User");
+
+        // Save and return the updated request
         return rrepo.save(request);
     }
 
-    public String deleteRequest(int request_id) {
-        String msg = "";
+    public RequestEntity removeTechnicianFromRequest(Long request_id, Long tech_id) {
+        // Fetch the request by ID
+        RequestEntity request = rrepo.findById(request_id.intValue())
+                .orElseThrow(() -> new NoSuchElementException("Request " + request_id + " does not exist!"));
 
-        if (rrepo.findById(request_id) != null) {
-            rrepo.deleteById(request_id);
-            msg = "Request " + request_id + " is successfully deleted!";
-        } else {
-            msg = "Request " + request_id + " does not exist.";
+        // Fetch the technician by ID
+        TechnicianEntity technician = trepo.findById(tech_id)
+                .orElseThrow(() -> new NoSuchElementException("Technician " + tech_id + " does not exist!"));
+
+        // Remove the technician from the request's technician list
+        if (!request.getTechnicians().remove(technician)) {
+            throw new IllegalArgumentException("Technician " + tech_id + " is not assigned to this request.");
         }
-        return msg;
+
+        // Save the updated request
+        return rrepo.save(request);
+    }
+
+    public String deleteRequestById(int request_id) {
+        // Check if the request exists
+        RequestEntity request = rrepo.findById(request_id)
+                .orElseThrow(() -> new NoSuchElementException("Request with ID " + request_id + " does not exist!"));
+
+        // Delete the request
+        rrepo.delete(request);
+
+        // Return a confirmation message
+        return "Request with ID " + request_id + " has been successfully deleted!";
     }
 
     public String deleteAllRequests() {

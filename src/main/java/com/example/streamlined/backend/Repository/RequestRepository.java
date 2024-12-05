@@ -10,8 +10,10 @@ import org.springframework.data.repository.query.Param;
 import com.example.streamlined.backend.Entity.RequestEntity;
 
 public interface RequestRepository extends JpaRepository<RequestEntity, Integer> {
-    
+
     @Query("SELECT r FROM RequestEntity r WHERE r.user_id = :userId")
     List<RequestEntity> findAllByUserId(@Param("userId") Long userId);
 
+    @Query("SELECT r FROM RequestEntity r WHERE r.request_id = :requestId")
+    Optional<RequestEntity> findByRequestId(@Param("requestId") Long requestId);
 }
