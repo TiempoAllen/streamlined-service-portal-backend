@@ -22,7 +22,7 @@ import com.example.streamlined.backend.Service.TechnicianService;
 @RequestMapping("/technician")
 @CrossOrigin(origins = {
     "http://localhost:5173", "http://localhost:3000", // Development environment
-    "https://streamlined-service-portal-4amnsogyi-deployed-projects-4069a065.vercel.app","https://streamlined-service-portal.vercel.app/" // Production environment
+    "https://streamlined-service-portal-4amnsogyi-deployed-projects-4069a065.vercel.app", "https://streamlined-service-portal.vercel.app/" // Production environment
 }, allowCredentials = "true")
 public class TechnicianController {
 
@@ -49,17 +49,13 @@ public class TechnicianController {
         return tserv.updateTechnician(tid, newTechnicianDetails);
     }
 
-    @PutMapping("/assignToRequest")
-    public TechnicianEntity assignTechnicianToRequest(
-            @RequestParam Long tid,
-            @RequestParam Long request_id,
-            @RequestParam String request_purpose) {
-        return tserv.assignTechnicianToRequest(tid, request_id, request_purpose);
-    }
-
-
-  
-
+    // @PutMapping("/assignToRequest")
+    // public TechnicianEntity assignTechnicianToRequest(
+    //         @RequestParam Long tid,
+    //         @RequestParam Long request_id,
+    //         @RequestParam String request_purpose) {
+    //     return tserv.assignTechnicianToRequest(tid, request_id, request_purpose);
+    // }
     @DeleteMapping("/deleteTechnician/{tid}")
     public String deleteTechnician(@PathVariable Long tid) {
         return tserv.deleteTechnician(tid);

@@ -1,6 +1,7 @@
 package com.example.streamlined.backend.Entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,7 +9,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -46,6 +48,9 @@ public class RequestEntity {
     @Column(name = "scheduled_start_date")
     private String scheduledStartDate;
 
+    @Column(name = "completed_start_date")
+    private String completedStartDate;
+
     @Column(name = "attachment")
     private String attachment;
 
@@ -53,71 +58,46 @@ public class RequestEntity {
     private String denialReason;
 
     @Column(name = "is_opened", nullable = false)
-    private Boolean isOpened = false;	
+    private Boolean isOpened = false;
 
     private String errorMessage;
 
-    @ManyToOne
-    @JoinColumn(name = "tech_id", nullable = true)
-    @JsonBackReference  // Prevents infinite recursion
-    private TechnicianEntity technician;
+    @ManyToMany
+    @JoinTable(
+            name = "request_technicians",
+            joinColumns = @JoinColumn(name = "request_id"),
+            inverseJoinColumns = @JoinColumn(name = "tech_id")
+    )
+    // @JsonManagedReference // Prevents infinite recursion
+    private List<TechnicianEntity> technicians = new ArrayList<>();
 
     @Column(name = "technician_id")
     private Long technicianId;
 
-
     @Column(name = "is_resubmitted", nullable = true)
     private boolean isResubmitted = false; // Default value
- 
 
-
-
-
-	
-	public RequestEntity() {
-		super();
-		this.isOpened = false;
-	}
-   
-
-
-	public RequestEntity(Long request_id,  String description, String datetime, String status,
-			String request_technician, String request_location, Long user_id, String user_firstname,
-			String user_lastname, String attachment, 
-			String denialReason, Boolean isOpened, String errorMessage, TechnicianEntity technician, Long technicianId, 
-			boolean isResubmitted) {
-		super();
-		this.request_id = request_id;
-		this.description = description;
-		this.datetime = datetime;
-		this.status = status;
-		this.request_technician = request_technician;
-		this.request_location = request_location;
-		this.user_id = user_id;
-		this.user_firstname = user_firstname;
-		this.user_lastname = user_lastname;
-		this.attachment = attachment;
-		this.denialReason = denialReason;
-		this.isOpened = isOpened;
-		this.errorMessage = errorMessage;
-		this.technician = technician;
-		this.technicianId = technicianId;
-        this.isResubmitted = isResubmitted;
-	}
-	// Getter and Setter for isOpened
-	public Boolean getIsOpened() {
-		return isOpened;
-	}
-
-    public boolean GetIsResubmitted() {
-        return isResubmitted;
+    public RequestEntity() {
+        super();
+        this.isOpened = false;
     }
 
-    public void setResubmitted(boolean isResubmitted) {
-        this.isResubmitted = isResubmitted;
-    }
-    public void setIsOpened(boolean isOpened) {
-        this.isOpened = isOpened;
+    public RequestEntity(String attachment, String completedStartDate, String datetime, String denialReason, String description, String errorMessage, Long request_id, String request_location, String request_technician, String scheduledStartDate, String status, Long technicianId, String user_firstname, Long user_id, String user_lastname) {
+        this.attachment = attachment;
+        this.completedStartDate = completedStartDate;
+        this.datetime = datetime;
+        this.denialReason = denialReason;
+        this.description = description;
+        this.errorMessage = errorMessage;
+        this.request_id = request_id;
+        this.request_location = request_location;
+        this.request_technician = request_technician;
+        this.scheduledStartDate = scheduledStartDate;
+        this.status = status;
+        this.technicianId = technicianId;
+        this.user_firstname = user_firstname;
+        this.user_id = user_id;
+        this.user_lastname = user_lastname;
     }
 
     public Long getRequest_id() {
@@ -127,8 +107,6 @@ public class RequestEntity {
     public void setRequest_id(Long request_id) {
         this.request_id = request_id;
     }
-
-   
 
     public String getDescription() {
         return description;
@@ -202,6 +180,14 @@ public class RequestEntity {
         this.scheduledStartDate = scheduledStartDate;
     }
 
+    public String getCompletedStartDate() {
+        return completedStartDate;
+    }
+
+    public void setCompletedStartDate(String completedStartDate) {
+        this.completedStartDate = completedStartDate;
+    }
+
     public String getAttachment() {
         return attachment;
     }
@@ -218,6 +204,14 @@ public class RequestEntity {
         this.denialReason = denialReason;
     }
 
+    public Boolean getIsOpened() {
+        return isOpened;
+    }
+
+    public void setIsOpened(Boolean isOpened) {
+        this.isOpened = isOpened;
+    }
+
     public String getErrorMessage() {
         return errorMessage;
     }
@@ -226,12 +220,12 @@ public class RequestEntity {
         this.errorMessage = errorMessage;
     }
 
-    public TechnicianEntity getTechnician() {
-        return technician;
+    public List<TechnicianEntity> getTechnicians() {
+        return technicians;
     }
 
-    public void setTechnician(TechnicianEntity technician) {
-        this.technician = technician;
+    public void setTechnicians(List<TechnicianEntity> technicians) {
+        this.technicians = technicians;
     }
 
     public Long getTechnicianId() {
@@ -242,6 +236,12 @@ public class RequestEntity {
         this.technicianId = technicianId;
     }
 
+    public boolean isIsResubmitted() {
+        return isResubmitted;
+    }
 
+    public void setIsResubmitted(boolean isResubmitted) {
+        this.isResubmitted = isResubmitted;
+    }
 
 }

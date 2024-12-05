@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.example.streamlined.backend.Entity.RequestEntity;
 import com.example.streamlined.backend.Repository.RequestRepository;
@@ -46,7 +44,6 @@ public class RequestController {
 
     @Autowired
     RequestService rserv;
-    
 
     @Autowired
     RequestRepository requestRepository;
@@ -71,9 +68,8 @@ public class RequestController {
 
         // No need to parse datetime strings, just set them directly
         request.setDatetime(datetime);
-        
-        // request.setScheduledDate(scheduledDate);
 
+        // request.setScheduledDate(scheduledDate);
         request.setDescription(description);
         request.setUser_id(user_id);
 
@@ -126,7 +122,7 @@ public class RequestController {
         if (datetime != null) {
             existingRequest.setDatetime(datetime);
         }
-     
+
         if (description != null) {
             existingRequest.setDescription(description);
         }
@@ -175,7 +171,6 @@ public class RequestController {
                 .orElseThrow(() -> new RuntimeException("Request not found with id: " + request_id));
         return request.getTechnicianId();
     }
- 
 
     @PutMapping("/updateStatus")
     public RequestEntity updateStatus(@RequestParam int request_id, @RequestBody RequestEntity newRequestStatus) {
@@ -216,45 +211,28 @@ public class RequestController {
     }
 
     @PostMapping("/assignTechnician")
-    public ResponseEntity<String> assignTechnicianToRequest(
-            @RequestParam Long request_id,
-            @RequestParam Long tech_id,
-            @RequestParam String startTime) {
-
+    public ResponseEntity<RequestEntity> assignTechniciansToRequest(
+            @RequestParam Long requestId,
+            @RequestParam List<Long> techIds,
+            @RequestParam String scheduledStartDate
+    ) {
         try {
-            RequestEntity updatedRequest = rserv.assignTechnicianToRequest(request_id, tech_id, startTime);
-            return ResponseEntity.ok("Technician " + tech_id + " assigned to request " + request_id + " successfully");
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getReason());
+            RequestEntity updatedRequest = rserv.assignTechniciansToRequest(requestId, techIds, scheduledStartDate);
+            return ResponseEntity.ok(updatedRequest);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while assigning the technician.");
+            return ResponseEntity.badRequest().body(null);
         }
     }
 
-    // @PostMapping("/assignTechnician")
-    // public ResponseEntity<String> assignTechnicianToRequest(
-    //         @RequestParam Long request_id,
-    //         @RequestParam Long tech_id,
-    //         @RequestParam String scheduledDate, // String instead of Timestamp
-    //         @RequestParam String preferredDate) {  // String instead of Timestamp
-    //     rserv.assignTechnicianToRequest(request_id, tech_id, scheduledDate, preferredDate);
-    //     return ResponseEntity.ok("Technician " + tech_id + " assigned to request " + request_id + " successfully");
-    // }
     @PostMapping("/removeTechnician")
-    public ResponseEntity<String> removeTechnicianFromRequest(
-            @RequestParam Long request_id) {
-        rserv.removeTechnicianFromRequest(request_id);
-        return ResponseEntity.ok("Technician removed from request " + request_id + " successfully");
-    }
-
-    // @PutMapping("/updateAnnouncement")
-    // public RequestEntity updateUser(@RequestParam int request_id, @RequestBody RequestEntity newAnnouncementDetails) {
-    // 	return rserv.updateAnnouncement(request_id, newAnnouncementDetails);
-    // }
-    @DeleteMapping("deleteRequest/{request_id}")
-    public String deleteRequest(@PathVariable int request_id) {
-        return rserv.deleteRequest(request_id);
+    public ResponseEntity<String> removeTechnicianFromRequest(@RequestParam Long request_id, @RequestParam Long tech_id) {
+        try {
+            rserv.removeTechnicianFromRequest(request_id, tech_id);
+            return ResponseEntity.ok("Technician removed successfully from the request.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error while removing technician: " + e.getMessage());
+        }
     }
 
     @GetMapping("/attachment/{filename:.+}")
@@ -305,6 +283,12 @@ public class RequestController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(requests);
+    }
+
+    @DeleteMapping("/{request_id}")
+    public ResponseEntity<String> deleteRequestById(@PathVariable int request_id) {
+        String response = rserv.deleteRequestById(request_id);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/deleteAll")

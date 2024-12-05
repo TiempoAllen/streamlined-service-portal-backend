@@ -20,10 +20,6 @@ public class TechnicianService {
     @Autowired
     RequestRepository rrepo;
 
-  
-
-  
-
     public TechnicianEntity addTechnician(TechnicianEntity technician) {
         if (technician.getTech_department() == null) {
             technician.setTech_department("Not Specified");
@@ -52,18 +48,6 @@ public class TechnicianService {
 
         return trepo.save(technician);
     }
-
-    public TechnicianEntity assignTechnicianToRequest(Long tid, Long requestId, String requestPurpose) {
-        TechnicianEntity technician = trepo.findById(tid)
-                .orElseThrow(() -> new NoSuchElementException("Technician " + tid + " does not exist!"));
-
-        technician.setIsavailable(false);
-        technician.setPurpose(requestPurpose);
-        // Handle relationship in the RequestEntity instead
-
-        return trepo.save(technician);
-    }
-
 
 //	public RequestEntity getRequestByTechnician(Long tech_id) {
 //        Optional<RequestEntity> request = rrepo.findFirstByTechId(tech_id);
