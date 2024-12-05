@@ -114,7 +114,7 @@ public RequestEntity updateStatus(int request_id, RequestEntity newRequestStatus
                 List<UserEntity> admins = urepo.findByIsadmin(true);
                 for (UserEntity admin : admins) {
                     nserv.addNotification(
-                            "Your request has been cancelled.",
+                             requestPrefix + "Your request has been cancelled.",
                             admin.getUser_id(),
                             "Admin"
                     );
