@@ -1,8 +1,11 @@
 package com.example.streamlined.backend.Controller;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,11 +45,19 @@ public class NotificationController {
     public List<NotificationEntity> getNotifications(@PathVariable Long userId) {
         return notificationService.getNotificationsForUser(userId);
     }
-
     @PutMapping("/mark-as-read/{notificationId}")
-    public void markAsRead(@PathVariable Long notificationId) {
-        notificationService.markNotificationAsRead(notificationId);
+    public ResponseEntity<?> markAsRead(@PathVariable Long notificationId) {
+        Optional<NotificationEntity> notificationOpt = notificationService.findById(notificationId);
+        if (notificationOpt.isPresent()) {
+            NotificationEntity notification = notificationOpt.get();
+            notification.setIsRead(true);
+            notificationService.save(notification); // Persist change to DB
+            return ResponseEntity.ok("Notification marked as read.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Notification not found.");
+        }
     }
+    
 
     @PutMapping("/notify-evaluation/{request_id}/{userId}")
     public void notifyEvaluation(@PathVariable Long request_id, @PathVariable Long userId) {

@@ -78,45 +78,65 @@ public class RequestService {
         try {
             // Fetch the existing request by ID
             request = rrepo.findById(request_id).orElseThrow(
-                    () -> new NoSuchElementException("Request with ID " + request_id + " does not exist!")
-            );
+                    () -> new NoSuchElementException("Request with ID " + request_id + " does not exist!"));
 
             // Update the status
             request.setStatus(newRequestStatus.getStatus());
 
             // Handle notifications based on the new status
-            // Enclose title in quotation marks
+            String requestPrefix = "Request " + request_id + ": "; // Prefix with request ID
+
             if ("Approved".equals(newRequestStatus.getStatus())) {
                 nserv.addNotification(
-                        "Your request  " + request_id + " has been approved.",
+                        requestPrefix + "Your request has been approved!",
                         request.getUser_id(),
-                        "User"
-                );
+                        "User");
             } else if ("Denied".equals(newRequestStatus.getStatus())) {
                 request.setDenialReason(newRequestStatus.getDenialReason());
                 nserv.addNotification(
-                        "Your request " + request_id + " has been denied. Reason: " + newRequestStatus.getDenialReason(),
+                        requestPrefix + "Your request has been denied. Reason: " + newRequestStatus.getDenialReason(),
                         request.getUser_id(),
-                        "User"
-                );
+                        "User");
             } else if ("Done".equals(newRequestStatus.getStatus())) {
-                request.setCompletedStartDate(LocalDate.now().toString());
                 nserv.addNotification(
-                        "Your request " + request_id + " is done.",
+                        requestPrefix + "Your request is done.",
                         request.getUser_id(),
-                        "User"
-                );
-            } else if ("Cancelled".equals(newRequestStatus.getStatus())) {
-                List<UserEntity> admins = urepo.findByIsadmin(true);
-                for (UserEntity admin : admins) {
-                    nserv.addNotification(
-                            "The request " + request_id + " has been cancelled.",
-                            admin.getUser_id(),
-                            "Admin"
-                    );
-                }
-            }
+                        "User");
 
+                // Update the status
+                request.setStatus(newRequestStatus.getStatus());
+
+                // Handle notifications based on the new status
+                // Enclose title in quotation marks
+                if ("Approved".equals(newRequestStatus.getStatus())) {
+                    nserv.addNotification(
+                            "Your request  " + request_id + " has been approved.",
+                            request.getUser_id(),
+                            "User");
+                } else if ("Denied".equals(newRequestStatus.getStatus())) {
+                    request.setDenialReason(newRequestStatus.getDenialReason());
+                    nserv.addNotification(
+                            "Your request " + request_id + " has been denied. Reason: "
+                            + newRequestStatus.getDenialReason(),
+                            request.getUser_id(),
+                            "User");
+                } else if ("Done".equals(newRequestStatus.getStatus())) {
+                    request.setCompletedStartDate(LocalDate.now().toString());
+                    nserv.addNotification(
+                            "Your request " + request_id + " is done.",
+                            request.getUser_id(),
+                            "User");
+                } else if ("Cancelled".equals(newRequestStatus.getStatus())) {
+                    List<UserEntity> admins = urepo.findByIsadmin(true);
+                    for (UserEntity admin : admins) {
+                        nserv.addNotification(
+                                requestPrefix + "was cancelled.",
+                                admin.getUser_id(),
+                                "Admin");
+                    }
+                }
+
+            }
         } catch (NoSuchElementException ex) {
             // Handle case where the request is not found
             throw new NoSuchElementException("Request with ID " + request_id + " does not exist!");
@@ -124,13 +144,17 @@ public class RequestService {
             // Save and return the updated request
             return rrepo.save(request);
         }
+
     }
 
     public RequestEntity markRequestAsViewed(int request_id) {
+
         try {
             // Find the request by its ID
             RequestEntity request = rrepo.findById(request_id)
                     .orElseThrow(() -> new NoSuchElementException("Request with ID " + request_id + " does not exist!"));
+
+            String requestPrefix = "Request " + request_id + ": ";
 
             // Check if the request is already viewed
             if (!request.getIsOpened()) {
@@ -139,7 +163,7 @@ public class RequestService {
 
                 // Notify the user that their request has been viewed, using the title
                 nserv.addNotification(
-                        "Your request \"" + request.getRequest_id() + "\" has been viewed.",
+                        requestPrefix + "Your request has been viewed.",
                         request.getUser_id(),
                         "User"
                 );

@@ -58,6 +58,7 @@ public class RequestController {
             // @RequestParam(value = "scheduledDate", required = false) String scheduledDate,
             @RequestParam(value = "title", required = false) String title,
             @RequestParam("description") String description,
+            @RequestParam("remarks") String remarks,
             @RequestParam("urgency_level") String urgency_level,
             @RequestParam("user_id") Long user_id,
             @RequestParam(value = "attachment", required = false) MultipartFile attachment) throws IOException {
@@ -70,6 +71,8 @@ public class RequestController {
         request.setDatetime(datetime);
 
         // request.setScheduledDate(scheduledDate);
+        // request.setScheduledDate(scheduledDate);
+        request.setRemarks(remarks);
         request.setDescription(description);
         request.setUser_id(user_id);
 
@@ -101,6 +104,7 @@ public class RequestController {
             @RequestParam(value = "urgency_level", required = false) String urgency_level,
             @RequestParam(value = "preferredDate", required = false) String preferredDate,
             @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "remarks", required = false) String remarks,
             @RequestParam(value = "user_id", required = false) Long user_id,
             @RequestParam(value = "attachment", required = false) MultipartFile attachment) throws IOException {
 
@@ -126,6 +130,11 @@ public class RequestController {
         if (description != null) {
             existingRequest.setDescription(description);
         }
+
+        if (remarks != null) {
+            existingRequest.setDescription(remarks);
+        }
+
         if (user_id != null) {
             existingRequest.setUser_id(user_id);
         }
@@ -196,14 +205,13 @@ public class RequestController {
 //                              .body("An error occurred while assigning the technician.");
 //     }
 // }
-    @PutMapping("/submit-evaluation/{request_id}")
-    public RequestEntity submitEvaluation(
-            @PathVariable int request_id,
-            @RequestBody RequestEntity requestEntity) {
-        RequestEntity request = requestRepository.findById(request_id).get();
-        return requestRepository.save(request);
-    }
-
+    // @PutMapping("/submit-evaluation/{request_id}")
+    // public RequestEntity submitEvaluation(
+    //         @PathVariable int request_id,
+    //         @RequestBody RequestEntity requestEntity) {
+    //     RequestEntity request = requestRepository.findById(request_id).get();
+    //     return requestRepository.save(request);
+    // }
     @RequestMapping("/markViewed/{request_id}")
     public ResponseEntity<RequestEntity> markRequestAsViewed(@PathVariable int request_id) {
         RequestEntity updatedRequest = rserv.markRequestAsViewed(request_id);
@@ -253,24 +261,25 @@ public class RequestController {
         }
     }
 
-    @GetMapping("/uploads/{fileName:.+}")
+    @GetMapping("/**/uploads/{fileName:.+}")
     public ResponseEntity<Resource> getFile(@PathVariable String fileName) {
         try {
-            // Sanitize the file name to remove unwanted characters
-            fileName = fileName.trim().replaceAll("[\\n\\r]", ""); // Remove newlines
+            // Sanitize the file name
+            fileName = fileName.trim().replaceAll("[\\n\\r]", "");
 
-            // Define the path to the uploads directory
+            // Use the absolute path to the uploads directory
             Path filePath = Paths.get("uploads").resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
 
             // Check if the resource exists and is readable
             if (resource.exists() && resource.isReadable()) {
-                return ResponseEntity.ok().body(resource);
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
             } else {
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
-            // Log the exception for debugging
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);
         }

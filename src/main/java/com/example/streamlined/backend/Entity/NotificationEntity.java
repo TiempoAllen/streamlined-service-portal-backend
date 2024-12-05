@@ -13,9 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "tblNotifications")
 public class NotificationEntity {
 
-    @Id
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long notification_id;
+    @Column(name = "notification_id") 
+    private Long notificationId;
 
     @Column(name = "message")
     private String message;
@@ -69,11 +70,11 @@ public class NotificationEntity {
     }
 
     public Long getNotification_id() {
-        return notification_id;
+        return notificationId;
     }
 
-    public void setNotification_id(Long notification_id) {
-        this.notification_id = notification_id;
+    public void setNotification_id(Long notificationId) {
+        this.notificationId = notificationId;
     }
 
     public String getMessage() {
@@ -112,7 +113,7 @@ public class NotificationEntity {
         return isRead;
     }
 
-    public void setRead(boolean isRead) {
+    public void setIsRead(boolean isRead) {
         this.isRead = isRead;
     }
 

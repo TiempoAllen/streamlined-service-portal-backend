@@ -77,18 +77,22 @@ public class RequestEntity {
     @Column(name = "is_resubmitted", nullable = true)
     private boolean isResubmitted = false; // Default value
 
+    @Column(name = "remarks")
+    private String remarks;
+
     public RequestEntity() {
         super();
         this.isOpened = false;
     }
 
-    public RequestEntity(String attachment, String completedStartDate, String datetime, String denialReason, String description, String errorMessage, Long request_id, String request_location, String request_technician, String scheduledStartDate, String status, Long technicianId, String user_firstname, Long user_id, String user_lastname) {
+    public RequestEntity(String attachment, String completedStartDate, String datetime, String denialReason, String description, String errorMessage, String remarks, Long request_id, String request_location, String request_technician, String scheduledStartDate, String status, Long technicianId, String user_firstname, Long user_id, String user_lastname, boolean isResubmitted) {
         this.attachment = attachment;
         this.completedStartDate = completedStartDate;
         this.datetime = datetime;
         this.denialReason = denialReason;
         this.description = description;
         this.errorMessage = errorMessage;
+        this.remarks = remarks;
         this.request_id = request_id;
         this.request_location = request_location;
         this.request_technician = request_technician;
@@ -98,6 +102,11 @@ public class RequestEntity {
         this.user_firstname = user_firstname;
         this.user_id = user_id;
         this.user_lastname = user_lastname;
+        this.isResubmitted = isResubmitted;
+    }
+
+    public boolean GetIsResubmitted() {
+        return isResubmitted;
     }
 
     public Long getRequest_id() {
@@ -242,6 +251,15 @@ public class RequestEntity {
 
     public void setIsResubmitted(boolean isResubmitted) {
         this.isResubmitted = isResubmitted;
+
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
 
 }
