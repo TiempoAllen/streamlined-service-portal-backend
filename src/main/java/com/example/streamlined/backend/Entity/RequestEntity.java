@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
@@ -51,7 +52,7 @@ public class RequestEntity {
     @Column(name = "completed_start_date")
     private String completedStartDate;
 
-    @Column(name = "attachment")
+    @Lob // Use this for large data
     private String attachment;
 
     @Column(name = "denial_reason", nullable = true)
@@ -85,24 +86,30 @@ public class RequestEntity {
         this.isOpened = false;
     }
 
-    public RequestEntity(String attachment, String completedStartDate, String datetime, String denialReason, String description, String errorMessage, String remarks, Long request_id, String request_location, String request_technician, String scheduledStartDate, String status, Long technicianId, String user_firstname, Long user_id, String user_lastname, boolean isResubmitted) {
-        this.attachment = attachment;
-        this.completedStartDate = completedStartDate;
-        this.datetime = datetime;
-        this.denialReason = denialReason;
-        this.description = description;
-        this.errorMessage = errorMessage;
-        this.remarks = remarks;
+    public RequestEntity(Long request_id, String description, String datetime, String status, String request_technician,
+            String request_location, Long user_id, String user_firstname, String user_lastname,
+            String scheduledStartDate, String completedStartDate, String attachment, String denialReason,
+            Boolean isOpened, String errorMessage, List<TechnicianEntity> technicians, Long technicianId,
+            boolean isResubmitted, String remarks) {
         this.request_id = request_id;
-        this.request_location = request_location;
-        this.request_technician = request_technician;
-        this.scheduledStartDate = scheduledStartDate;
+        this.description = description;
+        this.datetime = datetime;
         this.status = status;
-        this.technicianId = technicianId;
-        this.user_firstname = user_firstname;
+        this.request_technician = request_technician;
+        this.request_location = request_location;
         this.user_id = user_id;
+        this.user_firstname = user_firstname;
         this.user_lastname = user_lastname;
+        this.scheduledStartDate = scheduledStartDate;
+        this.completedStartDate = completedStartDate;
+        this.attachment = attachment;
+        this.denialReason = denialReason;
+        this.isOpened = isOpened;
+        this.errorMessage = errorMessage;
+        this.technicians = technicians;
+        this.technicianId = technicianId;
         this.isResubmitted = isResubmitted;
+        this.remarks = remarks;
     }
 
     public boolean GetIsResubmitted() {
