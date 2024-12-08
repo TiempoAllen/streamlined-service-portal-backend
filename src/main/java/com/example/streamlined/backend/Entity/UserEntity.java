@@ -22,15 +22,15 @@ public class UserEntity {
     private String firstname;
 
     @Column(name = "lastname")
-    private String lastname;
+    private String lastname;    
 
     @Column(name = "password")
     private String password;
 
-    @Column(name = "employee_id")
+    @Column(name = "employee_id", unique = true, nullable = false)
     private String employee_id;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
     
     @Column(name = "department")
