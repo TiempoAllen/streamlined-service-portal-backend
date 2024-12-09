@@ -10,7 +10,10 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -108,8 +111,8 @@ public class UserController {
     }
 
     @PostMapping("/uploadProfilePicture/{user_id}")
-    public String uploadProfilePicture(Long user_id, MultipartFile file) {
-        UserEntity user = urepo.findByUserId(user_id)
+    public String uploadProfilePicture(@PathVariable int user_id, @RequestParam("file") MultipartFile file) {
+        UserEntity user = urepo.findById(user_id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Define the uploads directory
@@ -122,9 +125,17 @@ public class UserController {
                 Files.createDirectories(uploadPath);
             }
 
-            // Save the file in the uploads directory
-            String fileName = "profile_" + user_id + "_" + file.getOriginalFilename();
+            // Validate file type
+            if (!file.getContentType().startsWith("image/")) {
+                throw new RuntimeException("Only image files are allowed.");
+            }
+
+            // Sanitize and create a unique file name
+            String sanitizedFileName = file.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-_]", "_");
+            String fileName = "profile_" + user_id + "_" + System.currentTimeMillis() + "_" + sanitizedFileName;
             Path filePath = uploadPath.resolve(fileName);
+
+            // Save the file to the uploads directory
             Files.write(filePath, file.getBytes());
 
             // Save the file path to the database
@@ -133,13 +144,13 @@ public class UserController {
 
             return "Profile picture uploaded successfully to " + filePath;
         } catch (IOException e) {
-            throw new RuntimeException("Failed to upload profile picture: " + e.getMessage());
+            throw new RuntimeException("Failed to upload profile picture: " + e.getMessage(), e);
         }
     }
 
     @GetMapping("/{user_id}/profile-picture")
-    public byte[] getProfilePicture(Long user_id) {
-        UserEntity user = urepo.findByUserId(user_id)
+    public ResponseEntity<Resource> getProfilePicture(@PathVariable int user_id) {
+        UserEntity user = urepo.findById(user_id)
                 .orElseThrow(() -> new EntityNotFoundException("User with ID " + user_id + " not found"));
 
         // Retrieve the file path from the user entity
@@ -149,11 +160,20 @@ public class UserController {
         }
 
         try {
-            // Read the file as a byte array
             Path path = Paths.get(filePath);
-            return Files.readAllBytes(path);
+            Resource resource = new FileSystemResource(path);
+
+            // Determine content type
+            String contentType = Files.probeContentType(path);
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .body(resource);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read profile picture: " + e.getMessage());
+            throw new RuntimeException("Failed to read profile picture: " + e.getMessage(), e);
         }
     }
 
