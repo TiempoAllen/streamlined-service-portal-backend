@@ -1,9 +1,9 @@
 package com.example.streamlined.backend.Controller;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,120 +49,77 @@ public class RequestController {
     RequestRepository requestRepository;
 
     @PostMapping("/add")
-    public RequestEntity addRequest(
-            @RequestParam("request_technician") String request_technician,
-            @RequestParam("request_location") String request_location,
+    public ResponseEntity<RequestEntity> addRequest(
+            @RequestParam("request_technician") String requestTechnician,
+            @RequestParam("request_location") String requestLocation,
             @RequestParam("datetime") String datetime,
-            @RequestParam(value = "preferredStartDate", required = false) String preferredStartDate,
-            @RequestParam(value = "preferredEndDate", required = false) String preferredEndDate,
-            // @RequestParam(value = "scheduledDate", required = false) String scheduledDate,
-            @RequestParam(value = "title", required = false) String title,
             @RequestParam("description") String description,
             @RequestParam("remarks") String remarks,
-            @RequestParam("urgency_level") String urgency_level,
-            @RequestParam("user_id") Long user_id,
+            @RequestParam("user_id") Long userId,
             @RequestParam(value = "attachment", required = false) MultipartFile attachment) throws IOException {
 
         RequestEntity request = new RequestEntity();
-        request.setRequest_technician(request_technician);
-        request.setRequest_location(request_location);
-
-        // No need to parse datetime strings, just set them directly
+        request.setRequest_technician(requestTechnician);
+        request.setRequest_location(requestLocation);
         request.setDatetime(datetime);
-
-        // request.setScheduledDate(scheduledDate);
-        // request.setScheduledDate(scheduledDate);
-        request.setRemarks(remarks);
         request.setDescription(description);
-        request.setUser_id(user_id);
+        request.setRemarks(remarks);
+        request.setUser_id(userId);
 
-        // Save the file to a local directory or cloud storage
         if (attachment != null && !attachment.isEmpty()) {
-            byte[] bytes = attachment.getBytes();
-            Path uploadDir = Paths.get("uploads");
-
-            // Check if the directory exists, if not create it
-            if (!Files.exists(uploadDir)) {
-                Files.createDirectories(uploadDir);
-            }
-
-            Path path = uploadDir.resolve(attachment.getOriginalFilename());
-            Files.write(path, bytes);
-            request.setAttachment(path.toString());
+            // Encode the attachment to Base64
+            String base64Attachment = Base64.getEncoder().encodeToString(attachment.getBytes());
+            request.setAttachment(base64Attachment);
         }
 
-        return rserv.addRequest(request);
+        RequestEntity savedRequest = rserv.addRequest(request);
+        return ResponseEntity.ok(savedRequest);
     }
 
     @PutMapping("/update/{request_id}")
     public ResponseEntity<RequestEntity> updateRequest(
             @PathVariable int request_id,
-            @RequestParam(value = "request_technician", required = false) String request_technician,
-            @RequestParam(value = "request_location", required = false) String request_location,
-            @RequestParam(value = "datetime", required = false) String datetime, // Keep as String
+            @RequestParam(value = "request_technician", required = false) String requestTechnician,
+            @RequestParam(value = "request_location", required = false) String requestLocation,
+            @RequestParam(value = "datetime", required = false) String datetime,
             @RequestParam(value = "title", required = false) String title,
-            @RequestParam(value = "urgency_level", required = false) String urgency_level,
-            @RequestParam(value = "preferredDate", required = false) String preferredDate,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "remarks", required = false) String remarks,
-            @RequestParam(value = "user_id", required = false) Long user_id,
+            @RequestParam(value = "urgency_level", required = false) String urgencyLevel,
             @RequestParam(value = "attachment", required = false) MultipartFile attachment) throws IOException {
 
-        // Fetch the existing request
         Optional<RequestEntity> optionalRequest = rserv.getRequestById(request_id);
         if (!optionalRequest.isPresent()) {
             return ResponseEntity.notFound().build();
         }
 
         RequestEntity existingRequest = optionalRequest.get();
-
-        // Update fields if provided
-        if (request_technician != null) {
-            existingRequest.setRequest_technician(request_technician);
+        if (requestTechnician != null) {
+            existingRequest.setRequest_technician(requestTechnician);
         }
-        if (request_location != null) {
-            existingRequest.setRequest_location(request_location);
+        if (requestLocation != null) {
+            existingRequest.setRequest_location(requestLocation);
         }
         if (datetime != null) {
             existingRequest.setDatetime(datetime);
         }
-
         if (description != null) {
             existingRequest.setDescription(description);
         }
-
         if (remarks != null) {
-            existingRequest.setDescription(remarks);
+            existingRequest.setRemarks(remarks);
         }
 
-        if (user_id != null) {
-            existingRequest.setUser_id(user_id);
-        }
-
-        // Check if the attachment is provided and save the file if present
         if (attachment != null && !attachment.isEmpty()) {
-            byte[] bytes = attachment.getBytes();
-            Path uploadDir = Paths.get("uploads");
-
-            // Check if the directory exists, if not create it
-            if (!Files.exists(uploadDir)) {
-                Files.createDirectories(uploadDir);
-            }
-
-            Path path = uploadDir.resolve(attachment.getOriginalFilename());
-            Files.write(path, bytes);
-            existingRequest.setAttachment(path.toString());
+            // Encode the attachment to Base64
+            String base64Attachment = Base64.getEncoder().encodeToString(attachment.getBytes());
+            existingRequest.setAttachment(base64Attachment);
         }
 
-        // Save the updated request (ensure you handle your update logic in the service layer)
         RequestEntity updatedRequest = rserv.addRequest(existingRequest);
         return ResponseEntity.ok(updatedRequest);
     }
 
-    /*@PostMapping("/add")
-	public RequestEntity addRequest (@RequestBody RequestEntity request) {
-        return rserv.addRequest(request);
-    }*/
     @GetMapping("/getAllRequest")
     public List<RequestEntity> getAllRequests() {
         return rserv.getAllRequests();
@@ -190,28 +147,6 @@ public class RequestController {
         return rserv.updateStatus(request_id, newRequestStatus);
     }
 
-//     @PostMapping("/assignTechnician")
-// public ResponseEntity<String> assignTechnicianToRequest(
-//         @RequestParam Long request_id,
-//         @RequestParam Long tech_id,
-//         @RequestParam String scheduledDate) {
-//     try {
-//         RequestEntity updatedRequest = rserv.assignTechnicianToRequest(request_id, tech_id, scheduledDate);
-//         return ResponseEntity.ok("Technician " + tech_id + " assigned to request " + request_id + " successfully");
-//     } catch (ResponseStatusException e) {
-//         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getReason());
-//     } catch (Exception e) {
-//         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                              .body("An error occurred while assigning the technician.");
-//     }
-// }
-    // @PutMapping("/submit-evaluation/{request_id}")
-    // public RequestEntity submitEvaluation(
-    //         @PathVariable int request_id,
-    //         @RequestBody RequestEntity requestEntity) {
-    //     RequestEntity request = requestRepository.findById(request_id).get();
-    //     return requestRepository.save(request);
-    // }
     @RequestMapping("/markViewed/{request_id}")
     public ResponseEntity<RequestEntity> markRequestAsViewed(@PathVariable int request_id) {
         RequestEntity updatedRequest = rserv.markRequestAsViewed(request_id);
@@ -241,6 +176,21 @@ public class RequestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error while removing technician: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/attachment/{request_id}")
+    public ResponseEntity<byte[]> getAttachment(@PathVariable int request_id) {
+        Optional<RequestEntity> optionalRequest = rserv.getRequestById(request_id);
+        if (optionalRequest.isEmpty() || optionalRequest.get().getAttachment() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        String base64Attachment = optionalRequest.get().getAttachment();
+        byte[] attachmentBytes = Base64.getDecoder().decode(base64Attachment);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=request-" + request_id + ".blob")
+                .body(attachmentBytes);
     }
 
     @GetMapping("/attachment/{filename:.+}")

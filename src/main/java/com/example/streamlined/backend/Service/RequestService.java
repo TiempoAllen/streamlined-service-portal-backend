@@ -44,7 +44,6 @@ public class RequestService {
 
         // Set the request status to Pending
         request.setStatus("Pending");
-
         // Save the request
         RequestEntity savedRequest = rrepo.save(request);
 
@@ -54,12 +53,24 @@ public class RequestService {
         // Add a notification for each admin
         String userFullName = request.getUser_firstname() + " " + request.getUser_lastname();
         for (UserEntity admin : admins) {
-            nserv.addNotification("A new request has been submitted by " + userFullName + ".", admin.getUser_id(), "Admin");
+            nserv.addNotification("A new request has been submitted by " + userFullName + ".", admin.getUser_id(),
+                    "Admin");
         }
 
         return savedRequest;
     }
 
+    // public byte[] getAttachment(int requestId) {
+    //     RequestEntity request = rrepo.findById(requestId)
+    //             .orElseThrow(() -> new NoSuchElementException("Request with ID " + requestId + " not found."));
+    //     return request.getAttachment();
+    // }
+    // public RequestEntity updateAttachment(int requestId, byte[] newAttachment) {
+    //     RequestEntity request = rrepo.findById(requestId)
+    //             .orElseThrow(() -> new NoSuchElementException("Request with ID " + requestId + " not found."));
+    //     request.setAttachment(newAttachment);
+    //     return rrepo.save(request);
+    // }
     public List<RequestEntity> getRequestsByUserId(Long userId) {
         return rrepo.findAllByUserId(userId);
     }
@@ -180,22 +191,6 @@ public class RequestService {
         }
     }
 
-    // public RequestEntity assignTechnicianToRequest(Long request_id, Long tech_id, String scheduledStartDate) {
-    //     RequestEntity request = rrepo.findById(request_id.intValue())
-    //             .orElseThrow(() -> new NoSuchElementException("Request " + request_id + " does not exist!"));
-    //     TechnicianEntity technician = trepo.findById(tech_id.longValue())
-    //             .orElseThrow(() -> new NoSuchElementException("Technician " + tech_id + " does not exist!"));
-    //     if (request.getTechnicians().contains(technician)) {
-    //         throw new IllegalArgumentException("Technician " + tech_id + " is already assigned to this request.");
-    //     }
-    //     request.getTechnicians().add(technician);
-    //     // Set the request's scheduled time and status
-    //     request.setScheduledStartDate(scheduledStartDate);
-    //     request.setStatus("In Progress");
-    //     nserv.addNotification("Your request has been assigned.", request.getUser_id(), "User");
-    //     rrepo.save(request);
-    //     return request;
-    // }
     public RequestEntity assignTechniciansToRequest(Long request_id, List<Long> tech_ids, String scheduledStartDate) {
         // Fetch the request by ID
         RequestEntity request = rrepo.findById(request_id.intValue())
